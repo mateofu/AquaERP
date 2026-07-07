@@ -336,8 +336,6 @@ El MVP debe cubrir el flujo mínimo completo:
 
 ## Desarrollo local
 
-> Pendiente de scaffold (Fase 0). Comandos previstos:
-
 ```bash
 # Backend
 cd backend
