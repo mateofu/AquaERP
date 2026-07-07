@@ -1,0 +1,10 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Fase 0: schema base. Modelos de negocio se agregan en Fase 1.

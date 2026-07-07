@@ -1,0 +1,1 @@
+-- Fase 0: migración inicial (schema vacío, conexión PostgreSQL)
