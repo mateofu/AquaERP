@@ -7,4 +7,155 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Fase 0: schema base. Modelos de negocio se agregan en Fase 1.
+enum RoleName {
+  ADMIN
+  OPERADOR
+  CAJERO
+  LECTOR
+  CONSULTA
+}
+
+enum DocumentType {
+  CC
+  NIT
+  CE
+  TI
+  PASAPORTE
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  LOGIN
+  LOGOUT
+}
+
+enum AuditEntity {
+  USER
+  CUSTOMER
+  PROPERTY
+  METER
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  firstName    String   @map("first_name")
+  lastName     String   @map("last_name")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  roles         UserRole[]
+  refreshTokens RefreshToken[]
+  auditLogs     AuditLog[]
+
+  @@map("users")
+}
+
+model Role {
+  id          String   @id @default(uuid())
+  name        RoleName @unique
+  description String
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  users UserRole[]
+
+  @@map("roles")
+}
+
+model UserRole {
+  userId String @map("user_id")
+  roleId String @map("role_id")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@map("user_roles")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  tokenHash String   @map("token_hash")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model Customer {
+  id             String       @id @default(uuid())
+  documentType   DocumentType @map("document_type")
+  documentNumber String       @unique @map("document_number")
+  firstName      String       @map("first_name")
+  lastName       String       @map("last_name")
+  email          String?
+  phone          String?
+  address        String?
+  isActive       Boolean      @default(true) @map("is_active")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+
+  properties Property[]
+
+  @@map("customers")
+}
+
+model Property {
+  id           String   @id @default(uuid())
+  customerId   String   @map("customer_id")
+  code         String   @unique
+  address      String
+  municipality String
+  vereda       String
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  customer Customer @relation(fields: [customerId], references: [id])
+  meters   Meter[]
+
+  @@index([customerId])
+  @@map("properties")
+}
+
+model Meter {
+  id               String    @id @default(uuid())
+  propertyId       String    @map("property_id")
+  serialNumber     String    @unique @map("serial_number")
+  brand            String?
+  installationDate DateTime? @map("installation_date")
+  isActive         Boolean   @default(true) @map("is_active")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  property Property @relation(fields: [propertyId], references: [id])
+
+  @@index([propertyId])
+  @@map("meters")
+}
+
+model AuditLog {
+  id        String      @id @default(uuid())
+  userId    String?     @map("user_id")
+  action    AuditAction
+  entity    AuditEntity
+  entityId  String      @map("entity_id")
+  changes   Json?
+  ipAddress String?     @map("ip_address")
+  createdAt DateTime    @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([entity, entityId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
