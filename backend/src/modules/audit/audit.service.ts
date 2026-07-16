@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AuditAction, AuditEntity } from '@prisma/client';
+import { AuditAction, AuditEntity, Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 
 export interface AuditLogInput {
@@ -7,7 +7,7 @@ export interface AuditLogInput {
   action: AuditAction;
   entity: AuditEntity;
   entityId: string;
-  changes?: Record<string, unknown>;
+  changes?: unknown;
   ipAddress?: string;
 }
 
@@ -22,7 +22,7 @@ export class AuditService {
         action: input.action,
         entity: input.entity,
         entityId: input.entityId,
-        changes: input.changes,
+        changes: this.toJsonInput(input.changes),
         ipAddress: input.ipAddress,
       },
     });
@@ -51,5 +51,13 @@ export class AuditService {
     ]);
 
     return { data, total };
+  }
+
+  private toJsonInput(value: unknown): Prisma.InputJsonValue | undefined {
+    if (value === undefined) {
+      return undefined;
+    }
+
+    return JSON.parse(JSON.stringify(value)) as Prisma.InputJsonValue;
   }
 }

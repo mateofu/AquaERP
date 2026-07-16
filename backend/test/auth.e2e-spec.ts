@@ -29,7 +29,7 @@ describe('Auth (e2e)', () => {
   });
 
   afterAll(async () => {
-    await app.close();
+    await app?.close();
   });
 
   it('/api/auth/login (POST) — credenciales válidas', async () => {
