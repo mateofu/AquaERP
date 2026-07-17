@@ -1,0 +1,269 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+}
+
+.login-shell {
+  display: grid;
+  min-height: 100dvh;
+  grid-template-columns: minmax(420px, 1.05fr) minmax(420px, 0.95fr);
+  background: #f6f8f6;
+}
+
+.brand-panel {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: 4rem;
+  color: #f7fffb;
+  background:
+    radial-gradient(circle at 20% 18%, rgb(102 195 165 / 24%), transparent 26%),
+    linear-gradient(145deg, #103d36 0%, #0b5a4e 52%, #087167 100%);
+}
+
+.brand-content {
+  position: relative;
+  z-index: 2;
+  width: min(560px, 100%);
+  margin-bottom: 8rem;
+}
+
+.brand-mark {
+  display: grid;
+  width: 58px;
+  height: 58px;
+  margin-bottom: 2.5rem;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 28%);
+  border-radius: 18px;
+  background: rgb(255 255 255 / 12%);
+  backdrop-filter: blur(8px);
+}
+
+.drop,
+.mini-drop {
+  display: inline-block;
+  width: 20px;
+  height: 27px;
+  border-radius: 70% 45% 65% 45%;
+  background: #7ce0c2;
+  transform: rotate(45deg);
+}
+
+.eyebrow {
+  margin: 0 0 0.75rem;
+  color: #3e806e;
+  font-size: 0.76rem;
+  font-weight: 750;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.brand-panel .eyebrow {
+  color: #95e1ca;
+}
+
+h1 {
+  max-width: 620px;
+  margin: 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(2.8rem, 5vw, 5.2rem);
+  font-weight: 500;
+  letter-spacing: -0.05em;
+  line-height: 0.98;
+}
+
+.brand-copy {
+  max-width: 520px;
+  margin: 1.75rem 0 2.5rem;
+  color: rgb(236 255 248 / 75%);
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.brand-stats {
+  display: flex;
+  gap: 2.75rem;
+}
+
+.brand-stats div {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.brand-stats strong {
+  font-size: 1.3rem;
+}
+
+.brand-stats span {
+  color: rgb(236 255 248 / 62%);
+  font-size: 0.78rem;
+}
+
+.landscape {
+  position: absolute;
+  inset: auto 0 0;
+  height: 38%;
+  opacity: 0.62;
+}
+
+.hill {
+  position: absolute;
+  bottom: -35%;
+  width: 82%;
+  height: 105%;
+  border-radius: 50% 50% 0 0;
+}
+
+.hill-back {
+  left: -20%;
+  background: #2a7461;
+  transform: rotate(8deg);
+}
+
+.hill-front {
+  right: -25%;
+  background: #174f43;
+  transform: rotate(-7deg);
+}
+
+.river {
+  position: absolute;
+  right: 26%;
+  bottom: -5%;
+  width: 18%;
+  height: 100%;
+  border-radius: 50% 50% 0 0;
+  background: linear-gradient(90deg, #72cdbb, #b8eadc, #65bba9);
+  transform: rotate(19deg);
+  filter: blur(1px);
+}
+
+.form-panel {
+  display: grid;
+  place-items: center;
+  padding: 3rem;
+}
+
+.login-card {
+  width: min(440px, 100%);
+}
+
+.mobile-brand {
+  display: none;
+}
+
+h2 {
+  margin: 0;
+  color: #172b27;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 2.65rem;
+  font-weight: 550;
+  letter-spacing: -0.04em;
+}
+
+.intro {
+  margin: 0.75rem 0 2rem;
+  color: #667772;
+  line-height: 1.55;
+}
+
+form {
+  display: grid;
+  gap: 0.55rem;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.password-toggle {
+  margin-right: 0.5rem;
+  border: 0;
+  color: #276f60;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  background: transparent;
+  cursor: pointer;
+}
+
+.submit-button {
+  --mdc-filled-button-container-color: #126b5c;
+  --mdc-filled-button-label-text-color: #fff;
+
+  height: 52px;
+  margin-top: 0.4rem;
+  border-radius: 12px;
+  font-size: 0.96rem;
+}
+
+.error-banner {
+  display: flex;
+  gap: 0.65rem;
+  align-items: center;
+  margin: 0 0 1.25rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid #f2c3bb;
+  border-radius: 10px;
+  color: #8a3022;
+  background: #fff4f1;
+  font-size: 0.88rem;
+}
+
+.error-banner span {
+  display: grid;
+  width: 21px;
+  height: 21px;
+  flex: 0 0 21px;
+  place-items: center;
+  border-radius: 50%;
+  color: white;
+  background: #bb4d3a;
+  font-weight: 800;
+}
+
+.support-copy,
+.version {
+  color: #7d8985;
+  font-size: 0.78rem;
+  text-align: center;
+}
+
+.support-copy {
+  margin-top: 2rem;
+}
+
+.version {
+  margin-top: 3.25rem;
+  color: #a1aaa7;
+}
+
+@media (max-width: 900px) {
+  .login-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .brand-panel {
+    display: none;
+  }
+
+  .form-panel {
+    padding: 2rem 1.25rem;
+  }
+
+  .mobile-brand {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    margin-bottom: 3.5rem;
+    color: #164f44;
+    font-size: 1.25rem;
+  }
+
+  .mini-drop {
+    width: 15px;
+    height: 21px;
+  }
+}
