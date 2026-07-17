@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { AuditAction, AuditEntity } from '@prisma/client';
+import { PrismaService } from '../../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
 import { CreateCustomerDto, UpdateCustomerDto } from './dto/customer.dto';
 import { CustomersRepository } from './customers.repository';
@@ -13,6 +14,7 @@ export class CustomersService {
   constructor(
     private readonly customersRepository: CustomersRepository,
     private readonly auditService: AuditService,
+    private readonly prisma: PrismaService,
   ) {}
 
   async findAll(page: number, limit: number, search?: string) {
@@ -48,18 +50,23 @@ export class CustomersService {
       throw new ConflictException('El número de documento ya está registrado');
     }
 
-    const customer = await this.customersRepository.create(dto);
+    return this.prisma.$transaction(async (tx) => {
+      const customer = await this.customersRepository.create(dto, tx);
 
-    await this.auditService.log({
-      userId: actorId,
-      action: AuditAction.CREATE,
-      entity: AuditEntity.CUSTOMER,
-      entityId: customer.id,
-      changes: dto,
-      ipAddress,
+      await this.auditService.log(
+        {
+          userId: actorId,
+          action: AuditAction.CREATE,
+          entity: AuditEntity.CUSTOMER,
+          entityId: customer.id,
+          changes: dto,
+          ipAddress,
+        },
+        tx,
+      );
+
+      return customer;
     });
-
-    return customer;
   }
 
   async update(
@@ -84,18 +91,23 @@ export class CustomersService {
       }
     }
 
-    const customer = await this.customersRepository.update(id, dto);
+    return this.prisma.$transaction(async (tx) => {
+      const customer = await this.customersRepository.update(id, dto, tx);
 
-    await this.auditService.log({
-      userId: actorId,
-      action: AuditAction.UPDATE,
-      entity: AuditEntity.CUSTOMER,
-      entityId: customer.id,
-      changes: dto,
-      ipAddress,
+      await this.auditService.log(
+        {
+          userId: actorId,
+          action: AuditAction.UPDATE,
+          entity: AuditEntity.CUSTOMER,
+          entityId: customer.id,
+          changes: { before: current, after: customer },
+          ipAddress,
+        },
+        tx,
+      );
+
+      return customer;
     });
-
-    return customer;
   }
 
   async deactivate(id: string, actorId: string, ipAddress?: string) {
@@ -105,18 +117,26 @@ export class CustomersService {
       throw new NotFoundException('Suscriptor no encontrado');
     }
 
-    const customer = await this.customersRepository.update(id, {
-      isActive: false,
-    });
+    return this.prisma.$transaction(async (tx) => {
+      const customer = await this.customersRepository.update(
+        id,
+        { isActive: false },
+        tx,
+      );
 
-    await this.auditService.log({
-      userId: actorId,
-      action: AuditAction.DELETE,
-      entity: AuditEntity.CUSTOMER,
-      entityId: customer.id,
-      ipAddress,
-    });
+      await this.auditService.log(
+        {
+          userId: actorId,
+          action: AuditAction.DELETE,
+          entity: AuditEntity.CUSTOMER,
+          entityId: customer.id,
+          changes: { before: current, after: customer },
+          ipAddress,
+        },
+        tx,
+      );
 
-    return customer;
+      return customer;
+    });
   }
 }

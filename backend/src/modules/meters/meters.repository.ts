@@ -60,15 +60,22 @@ export class MetersRepository {
     return this.prisma.meter.findUnique({ where: { serialNumber } });
   }
 
-  create(data: Prisma.MeterCreateInput): Promise<MeterWithProperty> {
-    return this.prisma.meter.create({
+  create(
+    data: Prisma.MeterCreateInput,
+    client: Prisma.TransactionClient | PrismaService = this.prisma,
+  ): Promise<MeterWithProperty> {
+    return client.meter.create({
       data,
       include: meterWithPropertyInclude,
     });
   }
 
-  update(id: string, data: Prisma.MeterUpdateInput): Promise<MeterWithProperty> {
-    return this.prisma.meter.update({
+  update(
+    id: string,
+    data: Prisma.MeterUpdateInput,
+    client: Prisma.TransactionClient | PrismaService = this.prisma,
+  ): Promise<MeterWithProperty> {
+    return client.meter.update({
       where: { id },
       data,
       include: meterWithPropertyInclude,

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 
 export interface HealthStatus {
@@ -15,11 +15,17 @@ export class HealthService {
   async check(): Promise<HealthStatus> {
     const databaseUp = await this.prisma.isHealthy();
 
+    if (!databaseUp) {
+      throw new ServiceUnavailableException(
+        'La base de datos no está disponible',
+      );
+    }
+
     return {
-      status: databaseUp ? 'ok' : 'error',
+      status: 'ok',
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
-      database: databaseUp ? 'up' : 'down',
+      database: 'up',
     };
   }
 }

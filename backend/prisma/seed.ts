@@ -22,6 +22,18 @@ async function main(): Promise<void> {
 
   const adminEmail = process.env.SEED_ADMIN_EMAIL ?? 'admin@aquaerp.local';
   const adminPassword = process.env.SEED_ADMIN_PASSWORD ?? 'Admin123!';
+
+  if (
+    process.env.NODE_ENV === 'production' &&
+    (!process.env.SEED_ADMIN_EMAIL ||
+      !process.env.SEED_ADMIN_PASSWORD ||
+      adminPassword === 'Admin123!')
+  ) {
+    throw new Error(
+      'En producción debe configurar credenciales seguras para el administrador inicial',
+    );
+  }
+
   const adminRole = await prisma.role.findUniqueOrThrow({
     where: { name: RoleName.ADMIN },
   });
@@ -31,10 +43,8 @@ async function main(): Promise<void> {
   const adminUser = await prisma.user.upsert({
     where: { email: adminEmail },
     update: {
-      passwordHash,
       firstName: 'Administrador',
       lastName: 'Sistema',
-      isActive: true,
     },
     create: {
       email: adminEmail,

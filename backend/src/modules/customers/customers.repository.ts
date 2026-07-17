@@ -34,12 +34,19 @@ export class CustomersRepository {
     return this.prisma.customer.findUnique({ where: { documentNumber } });
   }
 
-  create(data: Prisma.CustomerCreateInput): Promise<Customer> {
-    return this.prisma.customer.create({ data });
+  create(
+    data: Prisma.CustomerCreateInput,
+    client: Prisma.TransactionClient | PrismaService = this.prisma,
+  ): Promise<Customer> {
+    return client.customer.create({ data });
   }
 
-  update(id: string, data: Prisma.CustomerUpdateInput): Promise<Customer> {
-    return this.prisma.customer.update({ where: { id }, data });
+  update(
+    id: string,
+    data: Prisma.CustomerUpdateInput,
+    client: Prisma.TransactionClient | PrismaService = this.prisma,
+  ): Promise<Customer> {
+    return client.customer.update({ where: { id }, data });
   }
 
   private buildFilter(

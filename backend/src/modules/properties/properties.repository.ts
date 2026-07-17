@@ -53,8 +53,11 @@ export class PropertiesRepository {
     return this.prisma.property.findUnique({ where: { code } });
   }
 
-  create(data: Prisma.PropertyCreateInput): Promise<PropertyWithCustomer> {
-    return this.prisma.property.create({
+  create(
+    data: Prisma.PropertyCreateInput,
+    client: Prisma.TransactionClient | PrismaService = this.prisma,
+  ): Promise<PropertyWithCustomer> {
+    return client.property.create({
       data,
       include: propertyWithCustomerInclude,
     });
@@ -63,8 +66,9 @@ export class PropertiesRepository {
   update(
     id: string,
     data: Prisma.PropertyUpdateInput,
+    client: Prisma.TransactionClient | PrismaService = this.prisma,
   ): Promise<PropertyWithCustomer> {
-    return this.prisma.property.update({
+    return client.property.update({
       where: { id },
       data,
       include: propertyWithCustomerInclude,

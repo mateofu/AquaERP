@@ -1,5 +1,4 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
 import {
   IsBoolean,
   IsDateString,
@@ -8,6 +7,7 @@ import {
   IsUUID,
   MinLength,
 } from 'class-validator';
+import { PaginationQueryDto } from '../../../common/dto/pagination-query.dto';
 
 export class CreateMeterDto {
   @ApiProperty()
@@ -58,24 +58,10 @@ export class UpdateMeterDto {
   isActive?: boolean;
 }
 
-export class MeterQueryDto {
+export class MeterQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsUUID()
   propertyId?: string;
 
-  @ApiPropertyOptional({ default: 1 })
-  @IsOptional()
-  @Type(() => Number)
-  page?: number = 1;
-
-  @ApiPropertyOptional({ default: 20 })
-  @IsOptional()
-  @Type(() => Number)
-  limit?: number = 20;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  search?: string;
 }
