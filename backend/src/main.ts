@@ -2,13 +2,17 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
 import { EnvConfig } from './config/env.validation';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, {
-    logger: ['error', 'warn', 'log', 'debug'],
+    logger:
+      process.env.NODE_ENV === 'production'
+        ? ['error', 'warn', 'log']
+        : ['error', 'warn', 'log', 'debug'],
   });
 
   const configService = app.get(ConfigService<EnvConfig, true>);
@@ -18,8 +22,12 @@ async function bootstrap(): Promise<void> {
   const swaggerEnabled = configService.get('SWAGGER_ENABLED', { infer: true });
   const swaggerPath = configService.get('SWAGGER_PATH', { infer: true });
 
+  app.use(helmet());
   app.setGlobalPrefix(apiPrefix);
-  app.enableCors({ origin: corsOrigin, credentials: true });
+  app.enableCors({
+    origin: corsOrigin.split(',').map((origin) => origin.trim()),
+    credentials: true,
+  });
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

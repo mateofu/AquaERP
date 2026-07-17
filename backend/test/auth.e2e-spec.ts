@@ -78,4 +78,58 @@ describe('Auth (e2e)', () => {
         });
       });
   });
+
+  it('/api/auth/refresh (POST) — rota el refresh token', async () => {
+    const login = await request(app.getHttpServer())
+      .post('/api/auth/login')
+      .send({
+        email: 'admin@aquaerp.local',
+        password: 'Admin123!',
+      })
+      .expect(201);
+
+    const originalRefreshToken = login.body.refreshToken as string;
+    const rotated = await request(app.getHttpServer())
+      .post('/api/auth/refresh')
+      .send({ refreshToken: originalRefreshToken })
+      .expect(201);
+
+    expect(rotated.body).toMatchObject({
+      accessToken: expect.any(String),
+      refreshToken: expect.any(String),
+    });
+    expect(rotated.body.refreshToken).not.toBe(originalRefreshToken);
+
+    await request(app.getHttpServer())
+      .post('/api/auth/refresh')
+      .send({ refreshToken: originalRefreshToken })
+      .expect(401);
+
+    await request(app.getHttpServer())
+      .post('/api/auth/refresh')
+      .send({ refreshToken: rotated.body.refreshToken })
+      .expect(201);
+  });
+
+  it('/api/properties (GET) — rechaza paginación inválida', async () => {
+    const login = await request(app.getHttpServer())
+      .post('/api/auth/login')
+      .send({
+        email: 'admin@aquaerp.local',
+        password: 'Admin123!',
+      });
+
+    return request(app.getHttpServer())
+      .get('/api/properties?page=0&limit=101')
+      .set('Authorization', `Bearer ${login.body.accessToken}`)
+      .expect(400)
+      .expect((response) => {
+        expect(response.body).toMatchObject({
+          statusCode: 400,
+          code: 'VALIDATION_ERROR',
+          message: 'Los datos enviados no son válidos',
+          errors: expect.any(Array),
+        });
+      });
+  });
 });

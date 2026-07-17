@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { AuditAction, AuditEntity, RoleName } from '@prisma/client';
+import { AuditAction, AuditEntity, Prisma, RoleName } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 import { createHash, randomBytes } from 'crypto';
 import { AuthUser, JwtPayload } from '../../common/types/auth-user.type';
@@ -36,14 +36,21 @@ export class AuthService {
     }
 
     const authUser = this.mapToAuthUser(user);
-    const tokens = await this.issueTokens(authUser);
+    const tokens = await this.prisma.$transaction(async (tx) => {
+      const issuedTokens = await this.issueTokens(authUser, tx);
 
-    await this.auditService.log({
-      userId: user.id,
-      action: AuditAction.LOGIN,
-      entity: AuditEntity.USER,
-      entityId: user.id,
-      ipAddress,
+      await this.auditService.log(
+        {
+          userId: user.id,
+          action: AuditAction.LOGIN,
+          entity: AuditEntity.USER,
+          entityId: user.id,
+          ipAddress,
+        },
+        tx,
+      );
+
+      return issuedTokens;
     });
 
     return {
@@ -52,14 +59,13 @@ export class AuthService {
     };
   }
 
-  async refresh(refreshToken: string): Promise<{ accessToken: string }> {
+  async refresh(
+    refreshToken: string,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     const tokenHash = this.hashToken(refreshToken);
 
     const storedToken = await this.prisma.refreshToken.findFirst({
-      where: {
-        tokenHash,
-        expiresAt: { gt: new Date() },
-      },
+      where: { tokenHash },
       include: {
         user: {
           include: {
@@ -71,14 +77,33 @@ export class AuthService {
       },
     });
 
-    if (!storedToken || !storedToken.user.isActive) {
+    if (
+      !storedToken ||
+      storedToken.expiresAt <= new Date() ||
+      !storedToken.user.isActive
+    ) {
       throw new UnauthorizedException('Refresh token inválido o expirado');
     }
 
     const authUser = this.mapToAuthUser(storedToken.user);
     const accessToken = await this.signAccessToken(authUser);
+    const newRefreshToken = randomBytes(48).toString('hex');
+    const refreshExpiresIn = this.configService.get('JWT_REFRESH_EXPIRES_IN', {
+      infer: true,
+    });
 
-    return { accessToken };
+    await this.prisma.$transaction([
+      this.prisma.refreshToken.delete({ where: { id: storedToken.id } }),
+      this.prisma.refreshToken.create({
+        data: {
+          userId: authUser.id,
+          tokenHash: this.hashToken(newRefreshToken),
+          expiresAt: this.addDuration(new Date(), refreshExpiresIn),
+        },
+      }),
+    ]);
+
+    return { accessToken, refreshToken: newRefreshToken };
   }
 
   async logout(
@@ -88,16 +113,21 @@ export class AuthService {
   ): Promise<void> {
     const tokenHash = this.hashToken(refreshToken);
 
-    await this.prisma.refreshToken.deleteMany({
-      where: { userId, tokenHash },
-    });
+    await this.prisma.$transaction(async (tx) => {
+      await tx.refreshToken.deleteMany({
+        where: { userId, tokenHash },
+      });
 
-    await this.auditService.log({
-      userId,
-      action: AuditAction.LOGOUT,
-      entity: AuditEntity.USER,
-      entityId: userId,
-      ipAddress,
+      await this.auditService.log(
+        {
+          userId,
+          action: AuditAction.LOGOUT,
+          entity: AuditEntity.USER,
+          entityId: userId,
+          ipAddress,
+        },
+        tx,
+      );
     });
   }
 
@@ -113,6 +143,7 @@ export class AuthService {
 
   private async issueTokens(
     user: AuthUser,
+    client: Prisma.TransactionClient | PrismaService = this.prisma,
   ): Promise<{ accessToken: string; refreshToken: string }> {
     const accessToken = await this.signAccessToken(user);
     const refreshToken = randomBytes(48).toString('hex');
@@ -120,7 +151,7 @@ export class AuthService {
       infer: true,
     });
 
-    await this.prisma.refreshToken.create({
+    await client.refreshToken.create({
       data: {
         userId: user.id,
         tokenHash: this.hashToken(refreshToken),

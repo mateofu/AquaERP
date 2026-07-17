@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { AuditAction, AuditEntity } from '@prisma/client';
+import { PrismaService } from '../../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
 import { CustomersRepository } from '../customers/customers.repository';
 import {
@@ -18,6 +19,7 @@ export class PropertiesService {
     private readonly propertiesRepository: PropertiesRepository,
     private readonly customersRepository: CustomersRepository,
     private readonly auditService: AuditService,
+    private readonly prisma: PrismaService,
   ) {}
 
   async findAll(
@@ -62,24 +64,32 @@ export class PropertiesService {
       throw new ConflictException('El código de predio ya está registrado');
     }
 
-    const property = await this.propertiesRepository.create({
-      code: dto.code,
-      address: dto.address,
-      municipality: dto.municipality,
-      vereda: dto.vereda,
-      customer: { connect: { id: dto.customerId } },
-    });
+    return this.prisma.$transaction(async (tx) => {
+      const property = await this.propertiesRepository.create(
+        {
+          code: dto.code,
+          address: dto.address,
+          municipality: dto.municipality,
+          vereda: dto.vereda,
+          customer: { connect: { id: dto.customerId } },
+        },
+        tx,
+      );
 
-    await this.auditService.log({
-      userId: actorId,
-      action: AuditAction.CREATE,
-      entity: AuditEntity.PROPERTY,
-      entityId: property.id,
-      changes: dto,
-      ipAddress,
-    });
+      await this.auditService.log(
+        {
+          userId: actorId,
+          action: AuditAction.CREATE,
+          entity: AuditEntity.PROPERTY,
+          entityId: property.id,
+          changes: dto,
+          ipAddress,
+        },
+        tx,
+      );
 
-    return property;
+      return property;
+    });
   }
 
   async update(
@@ -110,27 +120,36 @@ export class PropertiesService {
       }
     }
 
-    const property = await this.propertiesRepository.update(id, {
-      code: dto.code,
-      address: dto.address,
-      municipality: dto.municipality,
-      vereda: dto.vereda,
-      isActive: dto.isActive,
-      ...(dto.customerId
-        ? { customer: { connect: { id: dto.customerId } } }
-        : {}),
-    });
+    return this.prisma.$transaction(async (tx) => {
+      const property = await this.propertiesRepository.update(
+        id,
+        {
+          code: dto.code,
+          address: dto.address,
+          municipality: dto.municipality,
+          vereda: dto.vereda,
+          isActive: dto.isActive,
+          ...(dto.customerId
+            ? { customer: { connect: { id: dto.customerId } } }
+            : {}),
+        },
+        tx,
+      );
 
-    await this.auditService.log({
-      userId: actorId,
-      action: AuditAction.UPDATE,
-      entity: AuditEntity.PROPERTY,
-      entityId: property.id,
-      changes: dto,
-      ipAddress,
-    });
+      await this.auditService.log(
+        {
+          userId: actorId,
+          action: AuditAction.UPDATE,
+          entity: AuditEntity.PROPERTY,
+          entityId: property.id,
+          changes: { before: current, after: property },
+          ipAddress,
+        },
+        tx,
+      );
 
-    return property;
+      return property;
+    });
   }
 
   async deactivate(id: string, actorId: string, ipAddress?: string) {
@@ -140,18 +159,26 @@ export class PropertiesService {
       throw new NotFoundException('Predio no encontrado');
     }
 
-    const property = await this.propertiesRepository.update(id, {
-      isActive: false,
-    });
+    return this.prisma.$transaction(async (tx) => {
+      const property = await this.propertiesRepository.update(
+        id,
+        { isActive: false },
+        tx,
+      );
 
-    await this.auditService.log({
-      userId: actorId,
-      action: AuditAction.DELETE,
-      entity: AuditEntity.PROPERTY,
-      entityId: property.id,
-      ipAddress,
-    });
+      await this.auditService.log(
+        {
+          userId: actorId,
+          action: AuditAction.DELETE,
+          entity: AuditEntity.PROPERTY,
+          entityId: property.id,
+          changes: { before: current, after: property },
+          ipAddress,
+        },
+        tx,
+      );
 
-    return property;
+      return property;
+    });
   }
 }

@@ -60,6 +60,9 @@ Documentación completa en Swagger: `http://localhost:3000/api/docs`
 |---------|-------------|
 | `npm run start:dev` | Desarrollo con hot reload |
 | `npm run build` | Build producción |
+| `npm run lint` | Verificación estática sin modificar archivos |
+| `npm run lint:fix` | Corrige automáticamente problemas de formato/lint |
+| `npm test` | Pruebas unitarias |
 | `npm run test:e2e` | Tests end-to-end |
 | `npm run prisma:seed` | Datos iniciales (roles + admin) |
 | `npm run prisma:studio` | UI de base de datos |
@@ -84,4 +87,7 @@ src/
 
 ## Fase actual
 
-**Fase 1 — Base administrativa** completada. Siguiente: Fase 2 (lecturas y consumos).
+**Fase 1.5 — Estabilización del backend** en curso. Incluye contratos de error
+uniformes, seguridad HTTP, rate limiting, rotación de refresh tokens,
+auditoría transaccional, lint y ampliación de pruebas. Siguiente: frontend
+administrativo y Fase 2 (lecturas y consumos).

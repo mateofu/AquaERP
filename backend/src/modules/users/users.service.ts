@@ -3,8 +3,9 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { AuditAction, AuditEntity, RoleName } from '@prisma/client';
+import { AuditAction, AuditEntity } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
+import { PrismaService } from '../../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
 import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
@@ -15,6 +16,7 @@ export class UsersService {
   constructor(
     private readonly usersRepository: UsersRepository,
     private readonly auditService: AuditService,
+    private readonly prisma: PrismaService,
   ) {}
 
   async findAll(page: number, limit: number, search?: string) {
@@ -52,24 +54,32 @@ export class UsersService {
     }
 
     const passwordHash = await bcrypt.hash(dto.password, 12);
-    const user = await this.usersRepository.create({
-      email: dto.email,
-      passwordHash,
-      firstName: dto.firstName,
-      lastName: dto.lastName,
-      roleNames: dto.roles,
-    });
+    return this.prisma.$transaction(async (tx) => {
+      const user = await this.usersRepository.create(
+        {
+          email: dto.email,
+          passwordHash,
+          firstName: dto.firstName,
+          lastName: dto.lastName,
+          roleNames: dto.roles,
+        },
+        tx,
+      );
 
-    await this.auditService.log({
-      userId: actorId,
-      action: AuditAction.CREATE,
-      entity: AuditEntity.USER,
-      entityId: user.id,
-      changes: { email: user.email, roles: dto.roles },
-      ipAddress,
-    });
+      await this.auditService.log(
+        {
+          userId: actorId,
+          action: AuditAction.CREATE,
+          entity: AuditEntity.USER,
+          entityId: user.id,
+          changes: { email: user.email, roles: dto.roles },
+          ipAddress,
+        },
+        tx,
+      );
 
-    return this.toResponse(user);
+      return this.toResponse(user);
+    });
   }
 
   async update(
@@ -96,28 +106,38 @@ export class UsersService {
       ? await bcrypt.hash(dto.password, 12)
       : undefined;
 
-    const user = await this.usersRepository.update(
-      id,
-      {
-        email: dto.email,
-        firstName: dto.firstName,
-        lastName: dto.lastName,
-        isActive: dto.isActive,
-        ...(passwordHash ? { passwordHash } : {}),
-      },
-      dto.roles,
-    );
+    return this.prisma.$transaction(async (tx) => {
+      const user = await this.usersRepository.update(
+        id,
+        {
+          email: dto.email,
+          firstName: dto.firstName,
+          lastName: dto.lastName,
+          isActive: dto.isActive,
+          ...(passwordHash ? { passwordHash } : {}),
+        },
+        dto.roles,
+        tx,
+      );
 
-    await this.auditService.log({
-      userId: actorId,
-      action: AuditAction.UPDATE,
-      entity: AuditEntity.USER,
-      entityId: user.id,
-      changes: { ...dto, password: dto.password ? '[redacted]' : undefined },
-      ipAddress,
+      await this.auditService.log(
+        {
+          userId: actorId,
+          action: AuditAction.UPDATE,
+          entity: AuditEntity.USER,
+          entityId: user.id,
+          changes: {
+            before: this.toResponse(current),
+            after: this.toResponse(user),
+            passwordChanged: Boolean(dto.password),
+          },
+          ipAddress,
+        },
+        tx,
+      );
+
+      return this.toResponse(user);
     });
-
-    return this.toResponse(user);
   }
 
   async deactivate(
@@ -131,17 +151,26 @@ export class UsersService {
       throw new NotFoundException('Usuario no encontrado');
     }
 
-    const user = await this.usersRepository.deactivate(id);
+    return this.prisma.$transaction(async (tx) => {
+      const user = await this.usersRepository.deactivate(id, tx);
 
-    await this.auditService.log({
-      userId: actorId,
-      action: AuditAction.DELETE,
-      entity: AuditEntity.USER,
-      entityId: user.id,
-      ipAddress,
+      await this.auditService.log(
+        {
+          userId: actorId,
+          action: AuditAction.DELETE,
+          entity: AuditEntity.USER,
+          entityId: user.id,
+          changes: {
+            before: this.toResponse(current),
+            after: this.toResponse(user),
+          },
+          ipAddress,
+        },
+        tx,
+      );
+
+      return this.toResponse(user);
     });
-
-    return this.toResponse(user);
   }
 
   private toResponse(user: UserWithRoles): UserResponseDto {

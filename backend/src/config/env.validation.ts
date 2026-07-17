@@ -16,6 +16,8 @@ export const envSchema = z.object({
     .transform((value) => value === 'true'),
   SWAGGER_PATH: z.string().min(1).default('docs'),
   CORS_ORIGIN: z.string().min(1).default('http://localhost:4200'),
+  RATE_LIMIT_TTL_MS: z.coerce.number().int().positive().default(60000),
+  RATE_LIMIT_MAX: z.coerce.number().int().positive().default(100),
   SEED_ADMIN_EMAIL: z.string().email().optional(),
   SEED_ADMIN_PASSWORD: z.string().min(8).optional(),
 });

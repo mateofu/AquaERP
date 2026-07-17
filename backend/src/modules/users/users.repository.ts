@@ -60,8 +60,8 @@ export class UsersRepository {
     firstName: string;
     lastName: string;
     roleNames: RoleName[];
-  }): Promise<UserWithRoles> {
-    return this.prisma.user.create({
+  }, client: Prisma.TransactionClient | PrismaService = this.prisma): Promise<UserWithRoles> {
+    return client.user.create({
       data: {
         email: data.email,
         passwordHash: data.passwordHash,
@@ -83,34 +83,48 @@ export class UsersRepository {
     id: string,
     data: Prisma.UserUpdateInput,
     roleNames?: RoleName[],
+    client?: Prisma.TransactionClient,
   ): Promise<UserWithRoles> {
-    return this.prisma.$transaction(async (tx) => {
-      if (roleNames) {
-        await tx.userRole.deleteMany({ where: { userId: id } });
-        await tx.userRole.createMany({
-          data: await Promise.all(
-            roleNames.map(async (roleName) => {
-              const role = await tx.role.findUniqueOrThrow({
-                where: { name: roleName },
-              });
-              return { userId: id, roleId: role.id };
-            }),
-          ),
-        });
-      }
+    if (client) {
+      return this.updateWithClient(client, id, data, roleNames);
+    }
 
-      return tx.user.update({
-        where: { id },
-        data,
-        include: userWithRolesInclude,
-      });
+    return this.prisma.$transaction((tx) =>
+      this.updateWithClient(tx, id, data, roleNames),
+    );
+  }
+
+  deactivate(
+    id: string,
+    client: Prisma.TransactionClient | PrismaService = this.prisma,
+  ): Promise<UserWithRoles> {
+    return client.user.update({
+      where: { id },
+      data: { isActive: false },
+      include: userWithRolesInclude,
     });
   }
 
-  deactivate(id: string): Promise<UserWithRoles> {
-    return this.prisma.user.update({
+  private async updateWithClient(
+    client: Prisma.TransactionClient,
+    id: string,
+    data: Prisma.UserUpdateInput,
+    roleNames?: RoleName[],
+  ): Promise<UserWithRoles> {
+    if (roleNames) {
+      await client.userRole.deleteMany({ where: { userId: id } });
+      const roles = await client.role.findMany({
+        where: { name: { in: roleNames } },
+        select: { id: true },
+      });
+      await client.userRole.createMany({
+        data: roles.map((role) => ({ userId: id, roleId: role.id })),
+      });
+    }
+
+    return client.user.update({
       where: { id },
-      data: { isActive: false },
+      data,
       include: userWithRolesInclude,
     });
   }

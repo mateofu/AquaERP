@@ -32,4 +32,7 @@ export class AuthResponseDto {
 export class AccessTokenResponseDto {
   @ApiProperty()
   accessToken!: string;
+
+  @ApiProperty()
+  refreshToken!: string;
 }

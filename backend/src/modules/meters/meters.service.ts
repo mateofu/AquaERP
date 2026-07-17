@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { AuditAction, AuditEntity } from '@prisma/client';
+import { PrismaService } from '../../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
 import { PropertiesRepository } from '../properties/properties.repository';
 import { CreateMeterDto, UpdateMeterDto } from './dto/meter.dto';
@@ -15,6 +16,7 @@ export class MetersService {
     private readonly metersRepository: MetersRepository,
     private readonly propertiesRepository: PropertiesRepository,
     private readonly auditService: AuditService,
+    private readonly prisma: PrismaService,
   ) {}
 
   async findAll(
@@ -57,25 +59,33 @@ export class MetersService {
       throw new ConflictException('El número de serie ya está registrado');
     }
 
-    const meter = await this.metersRepository.create({
-      serialNumber: dto.serialNumber,
-      brand: dto.brand,
-      installationDate: dto.installationDate
-        ? new Date(dto.installationDate)
-        : undefined,
-      property: { connect: { id: dto.propertyId } },
-    });
+    return this.prisma.$transaction(async (tx) => {
+      const meter = await this.metersRepository.create(
+        {
+          serialNumber: dto.serialNumber,
+          brand: dto.brand,
+          installationDate: dto.installationDate
+            ? new Date(dto.installationDate)
+            : undefined,
+          property: { connect: { id: dto.propertyId } },
+        },
+        tx,
+      );
 
-    await this.auditService.log({
-      userId: actorId,
-      action: AuditAction.CREATE,
-      entity: AuditEntity.METER,
-      entityId: meter.id,
-      changes: dto,
-      ipAddress,
-    });
+      await this.auditService.log(
+        {
+          userId: actorId,
+          action: AuditAction.CREATE,
+          entity: AuditEntity.METER,
+          entityId: meter.id,
+          changes: dto,
+          ipAddress,
+        },
+        tx,
+      );
 
-    return meter;
+      return meter;
+    });
   }
 
   async update(
@@ -108,28 +118,37 @@ export class MetersService {
       }
     }
 
-    const meter = await this.metersRepository.update(id, {
-      serialNumber: dto.serialNumber,
-      brand: dto.brand,
-      isActive: dto.isActive,
-      installationDate: dto.installationDate
-        ? new Date(dto.installationDate)
-        : undefined,
-      ...(dto.propertyId
-        ? { property: { connect: { id: dto.propertyId } } }
-        : {}),
-    });
+    return this.prisma.$transaction(async (tx) => {
+      const meter = await this.metersRepository.update(
+        id,
+        {
+          serialNumber: dto.serialNumber,
+          brand: dto.brand,
+          isActive: dto.isActive,
+          installationDate: dto.installationDate
+            ? new Date(dto.installationDate)
+            : undefined,
+          ...(dto.propertyId
+            ? { property: { connect: { id: dto.propertyId } } }
+            : {}),
+        },
+        tx,
+      );
 
-    await this.auditService.log({
-      userId: actorId,
-      action: AuditAction.UPDATE,
-      entity: AuditEntity.METER,
-      entityId: meter.id,
-      changes: dto,
-      ipAddress,
-    });
+      await this.auditService.log(
+        {
+          userId: actorId,
+          action: AuditAction.UPDATE,
+          entity: AuditEntity.METER,
+          entityId: meter.id,
+          changes: { before: current, after: meter },
+          ipAddress,
+        },
+        tx,
+      );
 
-    return meter;
+      return meter;
+    });
   }
 
   async deactivate(id: string, actorId: string, ipAddress?: string) {
@@ -139,16 +158,26 @@ export class MetersService {
       throw new NotFoundException('Medidor no encontrado');
     }
 
-    const meter = await this.metersRepository.update(id, { isActive: false });
+    return this.prisma.$transaction(async (tx) => {
+      const meter = await this.metersRepository.update(
+        id,
+        { isActive: false },
+        tx,
+      );
 
-    await this.auditService.log({
-      userId: actorId,
-      action: AuditAction.DELETE,
-      entity: AuditEntity.METER,
-      entityId: meter.id,
-      ipAddress,
+      await this.auditService.log(
+        {
+          userId: actorId,
+          action: AuditAction.DELETE,
+          entity: AuditEntity.METER,
+          entityId: meter.id,
+          changes: { before: current, after: meter },
+          ipAddress,
+        },
+        tx,
+      );
+
+      return meter;
     });
-
-    return meter;
   }
 }
