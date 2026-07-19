@@ -1,0 +1,179 @@
+<header class="page-header">
+  <div>
+    <h1>Suscriptores</h1>
+  </div>
+  @if (canWrite()) {
+    <button mat-flat-button class="create-button" type="button" (click)="openCreate()">
+      <span aria-hidden="true">+</span>
+      Crear suscriptor
+    </button>
+  }
+  <app-list-filters
+    placeholder="Buscar suscriptor"
+    [fields]="filterFields"
+    (filterChange)="facade.applyFilters($event.search, $event.filters)"
+  />
+</header>
+
+@if (facade.notice()) {
+  <div class="feedback success" role="status">{{ facade.notice() }}</div>
+}
+@if (facade.error()) {
+  <div class="feedback error" role="alert">{{ facade.error() }}</div>
+}
+
+<section class="panel">
+  <header class="list-heading">
+    <div>
+      <h2>Listado de suscriptores</h2>
+      <p>Personas responsables registradas en el sistema.</p>
+    </div>
+  </header>
+
+  @if (facade.loading()) {
+    <div class="empty-state">Cargando suscriptores…</div>
+  } @else if (facade.customers().length === 0) {
+    <div class="empty-state">
+      <strong>No hay suscriptores para mostrar</strong>
+      <span>Crea el primero o cambia el criterio de búsqueda.</span>
+    </div>
+  } @else {
+    <div class="table-wrap">
+      <table>
+        <colgroup>
+          <col class="col-number" />
+          <col class="col-primary" />
+          <col class="col-document" />
+          <col class="col-contact" />
+          <col class="col-address" />
+          @if (canWrite()) { <col class="col-actions" /> }
+        </colgroup>
+        <thead>
+          <tr>
+            <th scope="col" class="row-number-heading">#</th>
+            <th scope="col">Suscriptor</th>
+            <th scope="col">Documento</th>
+            <th scope="col">Contacto</th>
+            <th scope="col">Dirección</th>
+            @if (canWrite()) { <th scope="col" class="actions-heading">Acciones</th> }
+          </tr>
+        </thead>
+        <tbody>
+          @for (customer of facade.customers(); track customer.id) {
+            <tr>
+              <td class="row-number" data-label="#">
+                {{ (facade.page() - 1) * facade.limit() + $index + 1 }}
+              </td>
+              <td data-label="Suscriptor">
+                <strong>{{ customer.firstName }} {{ customer.lastName }}</strong>
+                <small>Activo</small>
+              </td>
+              <td data-label="Documento">
+                {{ documentLabel(customer.documentType) }}
+                <small>{{ customer.documentNumber }}</small>
+              </td>
+              <td data-label="Contacto">
+                {{ customer.email || 'Sin correo' }}
+                <small>{{ customer.phone || 'Sin teléfono' }}</small>
+              </td>
+              <td data-label="Dirección">{{ customer.address || 'Sin dirección' }}</td>
+              @if (canWrite()) {
+                <td class="actions" data-label="Acciones">
+                  <button mat-icon-button class="action-button" type="button"
+                    aria-label="Editar suscriptor" matTooltip="Editar suscriptor"
+                    matTooltipPosition="above" (click)="openEdit(customer)">
+                    <app-action-icon name="edit" />
+                  </button>
+                  <button mat-icon-button class="action-button danger" type="button"
+                    aria-label="Desactivar suscriptor" matTooltip="Desactivar suscriptor"
+                    matTooltipPosition="above" [disabled]="facade.saving()"
+                    (click)="deactivate(customer)">
+                    <app-action-icon name="deactivate" />
+                  </button>
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <footer class="pagination">
+      <button mat-icon-button class="pagination-button" type="button"
+        aria-label="Ir a la página anterior" matTooltip="Página anterior"
+        matTooltipPosition="above" [disabled]="!facade.hasPrevious()"
+        (click)="facade.previous()">
+        <app-action-icon name="previous" />
+      </button>
+      <span>Página {{ facade.page() }} de {{ facade.totalPages() }}</span>
+      <button mat-icon-button class="pagination-button" type="button"
+        aria-label="Ir a la página siguiente" matTooltip="Página siguiente"
+        matTooltipPosition="above" [disabled]="!facade.hasNext()"
+        (click)="facade.next()">
+        <app-action-icon name="next" />
+      </button>
+    </footer>
+  }
+</section>
+
+@if (formOpen()) {
+  <div class="dialog-backdrop">
+    <section class="dialog" role="dialog" aria-modal="true"
+      aria-labelledby="customer-form-title">
+      <header>
+        <div>
+          <p class="eyebrow">{{ selected() ? 'Actualizar datos' : 'Nuevo registro' }}</p>
+          <h2 id="customer-form-title">{{ selected() ? 'Editar suscriptor' : 'Crear suscriptor' }}</h2>
+        </div>
+        <button mat-button type="button" (click)="closeForm()">Cerrar</button>
+      </header>
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>Tipo de documento</mat-label>
+            <mat-select formControlName="documentType">
+              @for (type of documentTypes; track type[0]) {
+                <mat-option [value]="type[0]">{{ type[1] }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Número de documento</mat-label>
+            <input matInput formControlName="documentNumber" />
+            @if (form.controls.documentNumber.invalid) {
+              <mat-error>Ingresa al menos 3 caracteres.</mat-error>
+            }
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Nombres</mat-label>
+            <input matInput formControlName="firstName" />
+            <mat-error>Los nombres son obligatorios.</mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Apellidos</mat-label>
+            <input matInput formControlName="lastName" />
+            <mat-error>Los apellidos son obligatorios.</mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Correo electrónico</mat-label>
+            <input matInput type="email" formControlName="email" />
+            <mat-error>Ingresa un correo válido.</mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Teléfono</mat-label>
+            <input matInput formControlName="phone" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Dirección</mat-label>
+            <input matInput formControlName="address" />
+          </mat-form-field>
+        </div>
+        <footer>
+          <button mat-button type="button" (click)="closeForm()">Cancelar</button>
+          <button mat-flat-button type="submit" [disabled]="facade.saving()">
+            {{ facade.saving() ? 'Guardando…' : 'Guardar suscriptor' }}
+          </button>
+        </footer>
+      </form>
+    </section>
+  </div>
+}

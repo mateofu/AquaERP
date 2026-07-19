@@ -1,0 +1,172 @@
+<header class="page-header">
+  <div>
+    <h1>Predios</h1>
+  </div>
+  @if (canWrite()) {
+    <button mat-flat-button class="create-button" type="button" (click)="openCreate()">
+      <span aria-hidden="true">+</span>
+      Crear predio
+    </button>
+  }
+  <app-list-filters
+    placeholder="Buscar predio"
+    [fields]="filterFields()"
+    (filterChange)="facade.applyFilters($event.search, $event.filters)"
+  />
+</header>
+
+@if (facade.notice()) {
+  <div class="feedback success" role="status">{{ facade.notice() }}</div>
+}
+@if (facade.error()) {
+  <div class="feedback error" role="alert">{{ facade.error() }}</div>
+}
+
+<section class="panel">
+  <header class="list-heading">
+    <div>
+      <h2>Listado de predios</h2>
+      <p>Ubicaciones activas asociadas a los suscriptores.</p>
+    </div>
+  </header>
+
+  @if (facade.loading()) {
+    <div class="empty-state">Cargando predios…</div>
+  } @else if (facade.properties().length === 0) {
+    <div class="empty-state">
+      <strong>No hay predios para mostrar</strong>
+      <span>Crea el primero o cambia el criterio de búsqueda.</span>
+    </div>
+  } @else {
+    <div class="table-wrap">
+      <table>
+        <colgroup>
+          <col class="col-number" />
+          <col class="col-primary" />
+          <col class="col-location" />
+          <col class="col-customer" />
+          @if (canWrite()) { <col class="col-actions" /> }
+        </colgroup>
+        <thead>
+          <tr>
+            <th scope="col" class="row-number-heading">#</th>
+            <th scope="col">Predio</th>
+            <th scope="col">Ubicación</th>
+            <th scope="col">Suscriptor</th>
+            @if (canWrite()) { <th scope="col" class="actions-heading">Acciones</th> }
+          </tr>
+        </thead>
+        <tbody>
+          @for (property of facade.properties(); track property.id) {
+            <tr>
+              <td class="row-number" data-label="#">
+                {{ (facade.page() - 1) * facade.limit() + $index + 1 }}
+              </td>
+              <td data-label="Predio">
+                <strong>{{ property.code }}</strong>
+                <small>Activo</small>
+              </td>
+              <td data-label="Ubicación">
+                {{ property.address }}
+                <small>{{ property.vereda }}, {{ property.municipality }}</small>
+              </td>
+              <td data-label="Suscriptor">
+                {{ customerName(property) }}
+                <small>Documento {{ property.customer.documentNumber }}</small>
+              </td>
+              @if (canWrite()) {
+                <td class="actions" data-label="Acciones">
+                  <button mat-icon-button class="action-button" type="button"
+                    aria-label="Editar predio" matTooltip="Editar predio"
+                    matTooltipPosition="above" (click)="openEdit(property)">
+                    <app-action-icon name="edit" />
+                  </button>
+                  <button mat-icon-button class="action-button danger" type="button"
+                    aria-label="Desactivar predio" matTooltip="Desactivar predio"
+                    matTooltipPosition="above" [disabled]="facade.saving()"
+                    (click)="deactivate(property)">
+                    <app-action-icon name="deactivate" />
+                  </button>
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <footer class="pagination">
+      <button mat-icon-button class="pagination-button" type="button"
+        aria-label="Ir a la página anterior" matTooltip="Página anterior"
+        matTooltipPosition="above" [disabled]="!facade.hasPrevious()"
+        (click)="facade.previous()">
+        <app-action-icon name="previous" />
+      </button>
+      <span>Página {{ facade.page() }} de {{ facade.totalPages() }}</span>
+      <button mat-icon-button class="pagination-button" type="button"
+        aria-label="Ir a la página siguiente" matTooltip="Página siguiente"
+        matTooltipPosition="above" [disabled]="!facade.hasNext()"
+        (click)="facade.next()">
+        <app-action-icon name="next" />
+      </button>
+    </footer>
+  }
+</section>
+
+@if (formOpen()) {
+  <div class="dialog-backdrop">
+    <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="property-form-title">
+      <header>
+        <div>
+          <p class="eyebrow">{{ selected() ? 'Actualizar datos' : 'Nuevo registro' }}</p>
+          <h2 id="property-form-title">{{ selected() ? 'Editar predio' : 'Crear predio' }}</h2>
+        </div>
+        <button mat-button type="button" (click)="closeForm()">Cerrar</button>
+      </header>
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <div class="form-grid">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Suscriptor responsable</mat-label>
+            <mat-select formControlName="customerId">
+              @for (customer of facade.customers(); track customer.id) {
+                <mat-option [value]="customer.id">
+                  {{ customer.firstName }} {{ customer.lastName }} · {{ customer.documentNumber }}
+                </mat-option>
+              }
+            </mat-select>
+            @if (facade.loadingCustomers()) {
+              <mat-hint>Cargando suscriptores…</mat-hint>
+            }
+            <mat-error>Selecciona un suscriptor.</mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Código del predio</mat-label>
+            <input matInput formControlName="code" placeholder="PRED-001" />
+            <mat-error>Ingresa al menos 2 caracteres.</mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Dirección</mat-label>
+            <input matInput formControlName="address" />
+            <mat-error>La dirección es obligatoria.</mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Municipio</mat-label>
+            <input matInput formControlName="municipality" />
+            <mat-error>El municipio es obligatorio.</mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Vereda</mat-label>
+            <input matInput formControlName="vereda" />
+            <mat-error>La vereda es obligatoria.</mat-error>
+          </mat-form-field>
+        </div>
+        <footer>
+          <button mat-button type="button" (click)="closeForm()">Cancelar</button>
+          <button mat-flat-button type="submit"
+            [disabled]="facade.saving() || facade.loadingCustomers()">
+            {{ facade.saving() ? 'Guardando…' : 'Guardar predio' }}
+          </button>
+        </footer>
+      </form>
+    </section>
+  </div>
+}

@@ -25,11 +25,31 @@
 }
 
 .brand-symbol {
-  width: 28px;
-  height: 36px;
-  border-radius: 70% 45% 65% 45%;
-  background: linear-gradient(135deg, #66c8a9, #16705f);
-  transform: rotate(45deg);
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  place-items: center;
+  border: 1px solid #c7e3da;
+  border-radius: 13px;
+  background: linear-gradient(145deg, #edf9f5, #d9f0e8);
+}
+
+.brand-symbol svg {
+  width: 30px;
+  height: 30px;
+}
+
+.brand-symbol path:first-child {
+  fill: #2f927d;
+  stroke: #216f60;
+  stroke-width: 1.2;
+}
+
+.brand-symbol path:last-child {
+  stroke: #9fe0ce;
+  stroke-width: 2;
+  stroke-linecap: round;
 }
 
 .brand span:last-child {
@@ -97,8 +117,9 @@ nav {
   border-radius: 8px;
   color: #55736b;
   background: #edf1ef;
-  font-size: 0.61rem;
-  font-weight: 800;
+  transition:
+    color 160ms ease,
+    background-color 160ms ease;
 }
 
 .active .nav-symbol {

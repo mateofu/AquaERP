@@ -1,0 +1,55 @@
+<header>
+  <strong>Filtros</strong>
+  <span>Refina los resultados del listado.</span>
+</header>
+
+<form class="filters" role="search" (ngSubmit)="search()">
+  <div class="controls">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>{{ placeholder() }}</mat-label>
+      <input
+        matInput
+        [formControl]="searchControl"
+        (input)="searchValue.set(searchControl.value)"
+      />
+    </mat-form-field>
+    @for (field of fields(); track field.key) {
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ field.label }}</mat-label>
+        @if (field.type === 'select') {
+          <mat-select
+            [value]="values()[field.key] ?? ''"
+            (valueChange)="updateValue(field.key, $event)"
+          >
+            <mat-option value="">{{ field.emptyLabel ?? 'Todos' }}</mat-option>
+            @for (option of field.options ?? []; track option.value) {
+              <mat-option [value]="option.value">{{ option.label }}</mat-option>
+            }
+          </mat-select>
+        } @else {
+          <input
+            matInput
+            [value]="values()[field.key] ?? ''"
+            (input)="updateValue(field.key, $any($event.target).value)"
+          />
+        }
+      </mat-form-field>
+    }
+    <ng-content />
+  </div>
+
+  <footer>
+    <div class="actions">
+      <button mat-flat-button type="submit">Buscar</button>
+      <button
+        mat-stroked-button
+        type="button"
+        [disabled]="!hasFilters()"
+        (click)="clear()"
+      >
+        Limpiar filtros
+      </button>
+    </div>
+
+  </footer>
+</form>

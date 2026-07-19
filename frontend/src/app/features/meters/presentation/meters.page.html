@@ -1,0 +1,171 @@
+<header class="page-header">
+  <div>
+    <h1>Medidores</h1>
+  </div>
+  @if (canWrite()) {
+    <button mat-flat-button class="create-button" type="button" (click)="openCreate()">
+      <span aria-hidden="true">+</span>
+      Crear medidor
+    </button>
+  }
+  <app-list-filters
+    placeholder="Buscar medidor"
+    [fields]="filterFields()"
+    (filterChange)="facade.applyFilters($event.search, $event.filters)"
+  />
+</header>
+
+@if (facade.notice()) {
+  <div class="feedback success" role="status">{{ facade.notice() }}</div>
+}
+@if (facade.error()) {
+  <div class="feedback error" role="alert">{{ facade.error() }}</div>
+}
+
+<section class="panel">
+  <header class="list-heading">
+    <div>
+      <h2>Listado de medidores</h2>
+      <p>Equipos activos instalados en los predios.</p>
+    </div>
+  </header>
+
+  @if (facade.loading()) {
+    <div class="empty-state">Cargando medidores…</div>
+  } @else if (facade.meters().length === 0) {
+    <div class="empty-state">
+      <strong>No hay medidores para mostrar</strong>
+      <span>Crea el primero o cambia el criterio de búsqueda.</span>
+    </div>
+  } @else {
+    <div class="table-wrap">
+      <table>
+        <colgroup>
+          <col class="col-number" />
+          <col class="col-primary" />
+          <col class="col-property" />
+          <col class="col-customer" />
+          <col class="col-date" />
+          @if (canWrite()) { <col class="col-actions" /> }
+        </colgroup>
+        <thead>
+          <tr>
+            <th scope="col" class="row-number-heading">#</th>
+            <th scope="col">Medidor</th>
+            <th scope="col">Predio</th>
+            <th scope="col">Suscriptor</th>
+            <th scope="col" class="date-heading">Instalación</th>
+            @if (canWrite()) { <th scope="col" class="actions-heading">Acciones</th> }
+          </tr>
+        </thead>
+        <tbody>
+          @for (meter of facade.meters(); track meter.id) {
+            <tr>
+              <td class="row-number" data-label="#">
+                {{ (facade.page() - 1) * facade.limit() + $index + 1 }}
+              </td>
+              <td data-label="Medidor">
+                <strong>{{ meter.serialNumber }}</strong>
+                <small>{{ meter.brand || 'Sin marca registrada' }}</small>
+              </td>
+              <td data-label="Predio">
+                {{ meter.property.code }}
+                <small>{{ meter.property.address }}</small>
+              </td>
+              <td data-label="Suscriptor">
+                {{ customerName(meter) }}
+                <small>Documento {{ meter.property.customer.documentNumber }}</small>
+              </td>
+              <td class="date-cell" data-label="Instalación">
+                {{ meter.installationDate ? (meter.installationDate | date: 'dd/MM/yyyy') : 'Sin fecha' }}
+              </td>
+              @if (canWrite()) {
+                <td class="actions" data-label="Acciones">
+                  <button mat-icon-button class="action-button" type="button"
+                    aria-label="Editar medidor" matTooltip="Editar medidor"
+                    matTooltipPosition="above" (click)="openEdit(meter)">
+                    <app-action-icon name="edit" />
+                  </button>
+                  <button mat-icon-button class="action-button danger" type="button"
+                    aria-label="Desactivar medidor" matTooltip="Desactivar medidor"
+                    matTooltipPosition="above" [disabled]="facade.saving()"
+                    (click)="deactivate(meter)">
+                    <app-action-icon name="deactivate" />
+                  </button>
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <footer class="pagination">
+      <button mat-icon-button class="pagination-button" type="button"
+        aria-label="Ir a la página anterior" matTooltip="Página anterior"
+        matTooltipPosition="above" [disabled]="!facade.hasPrevious()"
+        (click)="facade.previous()">
+        <app-action-icon name="previous" />
+      </button>
+      <span>Página {{ facade.page() }} de {{ facade.totalPages() }}</span>
+      <button mat-icon-button class="pagination-button" type="button"
+        aria-label="Ir a la página siguiente" matTooltip="Página siguiente"
+        matTooltipPosition="above" [disabled]="!facade.hasNext()"
+        (click)="facade.next()">
+        <app-action-icon name="next" />
+      </button>
+    </footer>
+  }
+</section>
+
+@if (formOpen()) {
+  <div class="dialog-backdrop">
+    <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="meter-form-title">
+      <header>
+        <div>
+          <p class="eyebrow">{{ selected() ? 'Actualizar datos' : 'Nuevo registro' }}</p>
+          <h2 id="meter-form-title">{{ selected() ? 'Editar medidor' : 'Crear medidor' }}</h2>
+        </div>
+        <button mat-button type="button" (click)="closeForm()">Cerrar</button>
+      </header>
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <div class="form-grid">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Predio asociado</mat-label>
+            <mat-select formControlName="propertyId">
+              @for (property of facade.properties(); track property.id) {
+                <mat-option [value]="property.id">
+                  {{ property.code }} · {{ property.address }} ·
+                  {{ property.customer.firstName }} {{ property.customer.lastName }}
+                </mat-option>
+              }
+            </mat-select>
+            @if (facade.loadingProperties()) {
+              <mat-hint>Cargando predios…</mat-hint>
+            }
+            <mat-error>Selecciona un predio.</mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Número de serie</mat-label>
+            <input matInput formControlName="serialNumber" />
+            <mat-error>Ingresa al menos 2 caracteres.</mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Marca</mat-label>
+            <input matInput formControlName="brand" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Fecha de instalación</mat-label>
+            <input matInput type="date" formControlName="installationDate" />
+          </mat-form-field>
+        </div>
+        <footer>
+          <button mat-button type="button" (click)="closeForm()">Cancelar</button>
+          <button mat-flat-button type="submit"
+            [disabled]="facade.saving() || facade.loadingProperties()">
+            {{ facade.saving() ? 'Guardando…' : 'Guardar medidor' }}
+          </button>
+        </footer>
+      </form>
+    </section>
+  </div>
+}
