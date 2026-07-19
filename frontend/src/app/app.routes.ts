@@ -25,6 +25,30 @@ export const routes: Routes = [
             (component) => component.DashboardPage,
           ),
       },
+      {
+        path: 'customers',
+        title: 'Suscriptores | AquaERP',
+        loadComponent: () =>
+          import('./features/customers/presentation/customers.page').then(
+            (component) => component.CustomersPage,
+          ),
+      },
+      {
+        path: 'properties',
+        title: 'Predios | AquaERP',
+        loadComponent: () =>
+          import('./features/properties/presentation/properties.page').then(
+            (component) => component.PropertiesPage,
+          ),
+      },
+      {
+        path: 'meters',
+        title: 'Medidores | AquaERP',
+        loadComponent: () =>
+          import('./features/meters/presentation/meters.page').then(
+            (component) => component.MetersPage,
+          ),
+      },
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
     ],
   },

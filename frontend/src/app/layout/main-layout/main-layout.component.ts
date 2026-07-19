@@ -10,10 +10,14 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { map } from 'rxjs';
 import { AuthService } from '../../features/auth/application/auth.service';
 import { AuthSessionService } from '../../features/auth/application/auth-session.service';
+import {
+  NavigationIcon,
+  NavigationIconComponent,
+} from './navigation-icon.component';
 
 interface NavigationItem {
   label: string;
-  shortLabel: string;
+  icon: NavigationIcon;
   route?: string;
   status?: string;
 }
@@ -26,6 +30,7 @@ interface NavigationItem {
     MatMenuModule,
     MatSidenavModule,
     MatToolbarModule,
+    NavigationIconComponent,
     RouterLink,
     RouterLinkActive,
     RouterOutlet,
@@ -51,13 +56,13 @@ export class MainLayoutComponent {
       : 'AU';
   });
   readonly navigation: NavigationItem[] = [
-    { label: 'Inicio', shortLabel: 'IN', route: '/dashboard' },
-    { label: 'Suscriptores', shortLabel: 'SU', status: 'Próximo' },
-    { label: 'Predios', shortLabel: 'PR', status: 'Próximo' },
-    { label: 'Medidores', shortLabel: 'ME', status: 'Próximo' },
-    { label: 'Lecturas', shortLabel: 'LE', status: 'Fase 2' },
-    { label: 'Facturación', shortLabel: 'FA', status: 'Fase 3' },
-    { label: 'Pagos y cartera', shortLabel: 'PA', status: 'Fase 4' },
+    { label: 'Inicio', icon: 'home', route: '/dashboard' },
+    { label: 'Suscriptores', icon: 'customers', route: '/customers' },
+    { label: 'Predios', icon: 'properties', route: '/properties' },
+    { label: 'Medidores', icon: 'meters', route: '/meters' },
+    { label: 'Lecturas', icon: 'readings', status: 'Fase 2' },
+    { label: 'Facturación', icon: 'billing', status: 'Fase 3' },
+    { label: 'Pagos y cartera', icon: 'payments', status: 'Fase 4' },
   ];
 
   closeOnCompact(): void {

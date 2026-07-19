@@ -1,0 +1,66 @@
+:host {
+  display: block;
+  width: 100%;
+  margin-top: 1.25rem;
+  padding: 1rem;
+  border: 1px solid #dde5e2;
+  border-radius: 14px;
+  background: #fff;
+}
+
+header {
+  display: grid;
+  margin-bottom: .85rem;
+}
+
+header strong {
+  color: #29433c;
+  font-size: .85rem;
+}
+
+header span {
+  margin-top: .2rem;
+  color: #7b8985;
+  font-size: .69rem;
+}
+
+.filters {
+  display: grid;
+  gap: .85rem;
+}
+
+.controls {
+  display: flex;
+  gap: .65rem;
+  align-items: center;
+}
+
+mat-form-field {
+  width: min(300px, 100%);
+}
+
+footer {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.actions {
+  display: flex;
+  gap: .65rem;
+  align-items: center;
+}
+
+@media (max-width: 700px) {
+  .controls {
+    flex-wrap: wrap;
+  }
+
+  mat-form-field {
+    flex: 1 1 100%;
+  }
+
+  .actions {
+    flex-wrap: wrap;
+  }
+}
