@@ -59,7 +59,7 @@
       <mat-form-field appearance="outline"><mat-label>Periodo abierto</mat-label><mat-select formControlName="billingPeriodId">@for (period of facade.openPeriods(); track period.value) { <mat-option [value]="period.value">{{ period.label }}</mat-option> }</mat-select><mat-error>Selecciona un periodo.</mat-error></mat-form-field>
       <mat-form-field appearance="outline"><mat-label>Medidor</mat-label><mat-select formControlName="meterId">@for (meter of facade.meters(); track meter.value) { <mat-option [value]="meter.value">{{ meter.label }} · {{ meter.description }}</mat-option> }</mat-select><mat-error>Selecciona un medidor.</mat-error></mat-form-field>
       <mat-form-field appearance="outline"><mat-label>Valor de lectura</mat-label><input matInput type="number" step="0.001" formControlName="readingValue" /><span matTextSuffix>m³</span><mat-error>Ingresa un valor válido.</mat-error></mat-form-field>
-      <mat-form-field appearance="outline"><mat-label>Fecha de lectura</mat-label><input matInput type="date" formControlName="readingDate" /><mat-error>Selecciona una fecha.</mat-error></mat-form-field>
+      <app-date-field label="Fecha de lectura" formControlName="readingDate" [required]="true" />
       <mat-form-field appearance="outline" class="full"><mat-label>Observaciones</mat-label><textarea matInput formControlName="notes" rows="3"></textarea></mat-form-field>
       <footer><button mat-button type="button" (click)="closeForm()">Cancelar</button><button mat-flat-button type="submit">Guardar lectura</button></footer>
     </form>

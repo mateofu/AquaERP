@@ -1,0 +1,82 @@
+<header class="page-header">
+  <div><h1>Tarifas</h1></div>
+  @if (canWrite()) {
+    <button mat-flat-button class="create-button" type="button" (click)="openCreate()">
+      <span aria-hidden="true">+</span> Crear tarifa
+    </button>
+  }
+  <app-list-filters
+    placeholder="Buscar tarifa"
+    [fields]="filterFields"
+    (filterChange)="facade.applyFilters($event.search, $event.filters)"
+  />
+</header>
+
+@if (facade.notice()) { <div class="feedback success" role="status">{{ facade.notice() }}</div> }
+@if (facade.error()) { <div class="feedback error" role="alert">{{ facade.error() }}</div> }
+
+<section class="panel">
+  <header class="list-heading">
+    <h2>Configuración tarifaria</h2>
+    <p>Cargos aplicables por vigencia para la generación de facturas.</p>
+  </header>
+  @if (facade.loading()) {
+    <div class="empty-state">Cargando tarifas…</div>
+  } @else if (!facade.tariffs().length) {
+    <div class="empty-state">No hay tarifas para mostrar.</div>
+  } @else {
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>#</th><th>Tarifa</th><th>Cargo fijo</th><th>Valor por m³</th><th>Vigencia</th><th>Estado</th><th>Acciones</th></tr>
+        </thead>
+        <tbody>
+          @for (tariff of facade.tariffs(); track tariff.id) {
+            <tr>
+              <td>{{ (facade.page() - 1) * facade.limit() + $index + 1 }}</td>
+              <td><strong>{{ tariff.name }}</strong></td>
+              <td>{{ +tariff.fixedCharge | currency: 'COP':'symbol-narrow':'1.0-2':'es-CO' }}</td>
+              <td>{{ +tariff.pricePerCubicMeter | currency: 'COP':'symbol-narrow':'1.0-2':'es-CO' }}</td>
+              <td>
+                {{ tariff.validFrom | date: 'dd/MM/yyyy':'UTC' }}
+                <small>hasta {{ tariff.validTo ? (tariff.validTo | date: 'dd/MM/yyyy':'UTC') : 'sin fecha final' }}</small>
+              </td>
+              <td><span class="status" [class]="tariff.status.toLowerCase()">{{ statusLabel(tariff.status) }}</span></td>
+              <td class="actions">
+                @if (canWrite()) {
+                  @if (tariff.status === 'DRAFT') {
+                    <button mat-icon-button matTooltip="Editar tarifa" aria-label="Editar tarifa" (click)="openEdit(tariff)"><app-action-icon name="edit" /></button>
+                    <button mat-icon-button matTooltip="Activar tarifa" aria-label="Activar tarifa" [disabled]="facade.saving()" (click)="activate(tariff)"><app-action-icon name="open" /></button>
+                  } @else if (tariff.status === 'ACTIVE') {
+                    <button mat-icon-button class="danger" matTooltip="Retirar tarifa" aria-label="Retirar tarifa" [disabled]="facade.saving()" (click)="retire(tariff)"><app-action-icon name="deactivate" /></button>
+                  }
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <footer class="pagination">
+      <button mat-icon-button [disabled]="!facade.hasPrevious()" aria-label="Página anterior" (click)="facade.previous()"><app-action-icon name="previous" /></button>
+      <span>Página {{ facade.page() }} de {{ facade.totalPages() }}</span>
+      <button mat-icon-button [disabled]="!facade.hasNext()" aria-label="Página siguiente" (click)="facade.next()"><app-action-icon name="next" /></button>
+    </footer>
+  }
+</section>
+
+@if (formOpen()) {
+  <div class="dialog-backdrop">
+    <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="tariff-form-title">
+      <header><h2 id="tariff-form-title">{{ selected() ? 'Editar tarifa' : 'Crear tarifa' }}</h2><button mat-button type="button" (click)="closeForm()">Cerrar</button></header>
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <mat-form-field appearance="outline" class="full-width"><mat-label>Nombre</mat-label><input matInput formControlName="name" /><mat-error>Ingresa un nombre de al menos 3 caracteres.</mat-error></mat-form-field>
+        <mat-form-field appearance="outline"><mat-label>Cargo fijo</mat-label><span matTextPrefix>$&nbsp;</span><input matInput type="number" min="0" step="0.01" formControlName="fixedCharge" /><mat-error>Ingresa un valor igual o mayor a cero.</mat-error></mat-form-field>
+        <mat-form-field appearance="outline"><mat-label>Valor por m³</mat-label><span matTextPrefix>$&nbsp;</span><input matInput type="number" min="0" step="0.01" formControlName="pricePerCubicMeter" /><mat-error>Ingresa un valor igual o mayor a cero.</mat-error></mat-form-field>
+        <app-date-field label="Vigente desde" formControlName="validFrom" [required]="true" />
+        <app-date-field label="Vigente hasta" hint="Opcional" formControlName="validTo" [min]="form.controls.validFrom.value" />
+        <footer><button mat-button type="button" (click)="closeForm()">Cancelar</button><button mat-flat-button type="submit" [disabled]="facade.saving()">{{ facade.saving() ? 'Guardando…' : 'Guardar tarifa' }}</button></footer>
+      </form>
+    </section>
+  </div>
+}

@@ -35,3 +35,97 @@ input {
   outline: 3px solid rgb(34 129 108 / 35%);
   outline-offset: 2px;
 }
+
+/* Calendario compartido de AquaERP. El datepicker se renderiza en un overlay
+   global, por eso estos estilos no pueden vivir dentro del componente. */
+.aqua-date-picker {
+  --mat-datepicker-calendar-container-background-color: #fff;
+  --mat-datepicker-calendar-container-text-color: #29433c;
+  --mat-datepicker-calendar-date-text-color: #29433c;
+  --mat-datepicker-calendar-date-selected-state-background-color: #287765;
+  --mat-datepicker-calendar-date-selected-state-text-color: #fff;
+  --mat-datepicker-calendar-date-today-outline-color: #287765;
+  --mat-datepicker-calendar-date-hover-state-background-color: #e7f3ef;
+  --mat-datepicker-calendar-date-focus-state-background-color: #d9eee7;
+  --mat-datepicker-calendar-header-text-color: #203b34;
+  --mat-datepicker-calendar-period-button-text-color: #203b34;
+  --mat-datepicker-calendar-navigation-button-icon-color: #47645c;
+  --mat-datepicker-calendar-body-label-text-color: #287765;
+  --mat-datepicker-calendar-date-disabled-state-text-color: #adb9b5;
+}
+
+.aqua-date-picker .mat-datepicker-content {
+  overflow: hidden;
+  border: 1px solid #d7e4df;
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, #f2f8f5 0, #fff 88px);
+  box-shadow: 0 22px 60px rgb(22 57 47 / 22%);
+}
+
+.aqua-date-picker .mat-calendar {
+  width: 350px;
+  height: auto;
+  padding-bottom: 10px;
+}
+
+.aqua-date-picker .mat-calendar-header {
+  padding: 18px 18px 4px;
+}
+
+.aqua-date-picker .mat-calendar-controls {
+  margin: 0 0 10px;
+}
+
+.aqua-date-picker .mat-calendar-period-button {
+  border-radius: 9px;
+  font-size: .88rem;
+  font-weight: 750;
+  letter-spacing: .02em;
+}
+
+.aqua-date-picker .mat-calendar-period-button:hover,
+.aqua-date-picker .mat-calendar-previous-button:hover,
+.aqua-date-picker .mat-calendar-next-button:hover {
+  background: #dcefe8;
+}
+
+.aqua-date-picker .mat-calendar-table-header th {
+  padding: 0 0 12px;
+  color: #70837d;
+  font-size: .69rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.aqua-date-picker .mat-calendar-body-cell-content {
+  border-width: 0;
+  font-size: .8rem;
+  font-weight: 600;
+  transition:
+    color 120ms ease,
+    background-color 120ms ease,
+    transform 120ms ease;
+}
+
+.aqua-date-picker
+  .mat-calendar-body-cell:not(.mat-calendar-body-disabled):hover
+  .mat-calendar-body-cell-content {
+  transform: scale(1.06);
+}
+
+.aqua-date-picker .mat-calendar-body-selected {
+  box-shadow: 0 5px 13px rgb(40 119 101 / 30%);
+}
+
+.aqua-date-picker .mat-calendar-body-today:not(.mat-calendar-body-selected) {
+  border: 1.5px solid #287765;
+  color: #175c4d;
+  font-weight: 800;
+}
+
+@media (max-width: 420px) {
+  .aqua-date-picker .mat-calendar {
+    width: min(350px, calc(100vw - 28px));
+  }
+}

@@ -1,0 +1,17 @@
+:host,
+mat-form-field {
+  display: block;
+  width: 100%;
+}
+
+input[readonly] {
+  cursor: pointer;
+}
+
+:host ::ng-deep .mat-datepicker-toggle {
+  color: #287765;
+}
+
+:host ::ng-deep .mat-datepicker-toggle:hover {
+  color: #175c4d;
+}
