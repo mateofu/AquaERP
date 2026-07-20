@@ -1,6 +1,12 @@
 import { Component, input } from '@angular/core';
 
-export type ActionIcon = 'edit' | 'deactivate' | 'previous' | 'next';
+export type ActionIcon =
+  | 'edit'
+  | 'deactivate'
+  | 'previous'
+  | 'next'
+  | 'open'
+  | 'close';
 
 @Component({
   selector: 'app-action-icon',
@@ -14,8 +20,15 @@ export type ActionIcon = 'edit' | 'deactivate' | 'previous' | 'next';
         <path d="m8.8 8.8 6.4 6.4" />
       } @else if (name() === 'previous') {
         <path d="m14.5 5-7 7 7 7" />
-      } @else {
+      } @else if (name() === 'next') {
         <path d="m9.5 5 7 7-7 7" />
+      } @else if (name() === 'open') {
+        <path d="M7 10V7a5 5 0 0 1 9.6-2" />
+        <rect x="5" y="10" width="14" height="10" rx="2" />
+        <path d="M12 14v2" />
+      } @else {
+        <rect x="5" y="10" width="14" height="10" rx="2" />
+        <path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v2" />
       }
     </svg>
   `,

@@ -7,7 +7,8 @@ export type NavigationIcon =
   | 'meters'
   | 'readings'
   | 'billing'
-  | 'payments';
+  | 'payments'
+  | 'periods';
 
 @Component({
   selector: 'app-navigation-icon',
@@ -43,6 +44,10 @@ export type NavigationIcon =
         @case ('payments') {
           <rect x="3" y="6" width="18" height="13" rx="2" />
           <path d="M3 10h18M7 15h3" />
+        }
+        @case ('periods') {
+          <rect x="4" y="5" width="16" height="15" rx="2" />
+          <path d="M8 3v4M16 3v4M4 9h16M8 13h3M14 13h2M8 17h3" />
         }
       }
     </svg>

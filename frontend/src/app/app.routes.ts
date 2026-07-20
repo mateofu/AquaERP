@@ -49,6 +49,22 @@ export const routes: Routes = [
             (component) => component.MetersPage,
           ),
       },
+      {
+        path: 'billing-periods',
+        title: 'Periodos | AquaERP',
+        loadComponent: () =>
+          import('./features/billing-periods/presentation/billing-periods.page').then(
+            (component) => component.BillingPeriodsPage,
+          ),
+      },
+      {
+        path: 'meter-readings',
+        title: 'Lecturas | AquaERP',
+        loadComponent: () =>
+          import('./features/meter-readings/presentation/meter-readings.page').then(
+            (component) => component.MeterReadingsPage,
+          ),
+      },
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
     ],
   },

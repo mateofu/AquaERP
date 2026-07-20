@@ -1,0 +1,67 @@
+<header class="page-header">
+  <div><h1>Lecturas</h1></div>
+  @if (canWrite()) {
+    <button mat-flat-button class="create-button" type="button"
+      [disabled]="!facade.openPeriods().length" (click)="openCreate()">
+      <span aria-hidden="true">+</span> Registrar lectura
+    </button>
+  }
+  <app-list-filters placeholder="Buscar por medidor o predio"
+    [fields]="filterFields()"
+    (filterChange)="facade.applyFilters($event.search, $event.filters)" />
+</header>
+
+@if (facade.notice()) { <div class="feedback success" role="status">{{ facade.notice() }}</div> }
+@if (facade.error()) { <div class="feedback error" role="alert">{{ facade.error() }}</div> }
+
+<section class="panel">
+  <header class="list-heading"><h2>Listado de lecturas</h2><p>Consumos calculados por medidor y periodo.</p></header>
+  @if (facade.loading()) {
+    <div class="empty-state">Cargando lecturas…</div>
+  } @else if (!facade.readings().length) {
+    <div class="empty-state">No hay lecturas para mostrar.</div>
+  } @else {
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th class="row-number">#</th><th>Medidor</th><th>Periodo</th><th>Lectura</th><th>Anterior</th><th>Consumo</th><th>Fecha</th><th>Acciones</th></tr></thead>
+        <tbody>
+          @for (reading of facade.readings(); track reading.id) {
+            <tr [class.anomaly-row]="reading.hasAnomaly">
+              <td class="row-number">{{ (facade.page() - 1) * facade.limit() + $index + 1 }}</td>
+              <td><strong>{{ reading.meter.serialNumber }}</strong><small>{{ reading.meter.property.code }} · {{ reading.meter.property.address }}</small></td>
+              <td>{{ reading.billingPeriod.month }}/{{ reading.billingPeriod.year }}</td>
+              <td>{{ reading.readingValue | number: '1.0-3' }}</td>
+              <td>{{ reading.previousValue | number: '1.0-3' }}</td>
+              <td><strong>{{ reading.consumption | number: '1.0-3' }} m³</strong>@if (reading.hasAnomaly) { <small class="anomaly">{{ reading.anomalyReason }}</small> }</td>
+              <td>{{ reading.readingDate | date: 'dd/MM/yyyy' }}</td>
+              <td class="actions">
+                @if (canWrite() && reading.billingPeriod.status === 'OPEN') {
+                  <button mat-icon-button matTooltip="Editar lectura" aria-label="Editar lectura" (click)="openEdit(reading)"><app-action-icon name="edit" /></button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <footer class="pagination">
+      <button mat-icon-button [disabled]="!facade.hasPrevious()" aria-label="Página anterior" (click)="facade.previous()"><app-action-icon name="previous" /></button>
+      <span>Página {{ facade.page() }} de {{ facade.totalPages() }}</span>
+      <button mat-icon-button [disabled]="!facade.hasNext()" aria-label="Página siguiente" (click)="facade.next()"><app-action-icon name="next" /></button>
+    </footer>
+  }
+</section>
+
+@if (formOpen()) {
+  <div class="dialog-backdrop"><section class="dialog" role="dialog" aria-modal="true">
+    <header><h2>{{ selected() ? 'Editar lectura' : 'Registrar lectura' }}</h2><button mat-button type="button" (click)="closeForm()">Cerrar</button></header>
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <mat-form-field appearance="outline"><mat-label>Periodo abierto</mat-label><mat-select formControlName="billingPeriodId">@for (period of facade.openPeriods(); track period.value) { <mat-option [value]="period.value">{{ period.label }}</mat-option> }</mat-select><mat-error>Selecciona un periodo.</mat-error></mat-form-field>
+      <mat-form-field appearance="outline"><mat-label>Medidor</mat-label><mat-select formControlName="meterId">@for (meter of facade.meters(); track meter.value) { <mat-option [value]="meter.value">{{ meter.label }} · {{ meter.description }}</mat-option> }</mat-select><mat-error>Selecciona un medidor.</mat-error></mat-form-field>
+      <mat-form-field appearance="outline"><mat-label>Valor de lectura</mat-label><input matInput type="number" step="0.001" formControlName="readingValue" /><span matTextSuffix>m³</span><mat-error>Ingresa un valor válido.</mat-error></mat-form-field>
+      <mat-form-field appearance="outline"><mat-label>Fecha de lectura</mat-label><input matInput type="date" formControlName="readingDate" /><mat-error>Selecciona una fecha.</mat-error></mat-form-field>
+      <mat-form-field appearance="outline" class="full"><mat-label>Observaciones</mat-label><textarea matInput formControlName="notes" rows="3"></textarea></mat-form-field>
+      <footer><button mat-button type="button" (click)="closeForm()">Cancelar</button><button mat-flat-button type="submit">Guardar lectura</button></footer>
+    </form>
+  </section></div>
+}
