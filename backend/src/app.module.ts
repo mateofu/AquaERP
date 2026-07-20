@@ -6,8 +6,11 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { AppConfigModule } from './config/config.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { BillingPeriodsModule } from './modules/billing-periods/billing-periods.module';
+import { CatalogsModule } from './modules/catalogs/catalogs.module';
 import { CustomersModule } from './modules/customers/customers.module';
 import { HealthModule } from './modules/health/health.module';
+import { MeterReadingsModule } from './modules/meter-readings/meter-readings.module';
 import { MetersModule } from './modules/meters/meters.module';
 import { PropertiesModule } from './modules/properties/properties.module';
 import { RolesModule } from './modules/roles/roles.module';
@@ -31,6 +34,9 @@ import { PrismaModule } from './prisma/prisma.module';
     PrismaModule,
     AuditModule,
     AuthModule,
+    BillingPeriodsModule,
+    CatalogsModule,
+    MeterReadingsModule,
     UsersModule,
     RolesModule,
     CustomersModule,
