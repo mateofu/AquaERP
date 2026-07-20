@@ -153,10 +153,12 @@
             <mat-label>Marca</mat-label>
             <input matInput formControlName="brand" />
           </mat-form-field>
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Fecha de instalación</mat-label>
-            <input matInput type="date" formControlName="installationDate" />
-          </mat-form-field>
+          <app-date-field
+            class="full-width"
+            label="Fecha de instalación"
+            hint="Opcional"
+            formControlName="installationDate"
+          />
         </div>
         <footer>
           <button mat-button type="button" (click)="closeForm()">Cancelar</button>

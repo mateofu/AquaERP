@@ -65,6 +65,14 @@ export const routes: Routes = [
             (component) => component.MeterReadingsPage,
           ),
       },
+      {
+        path: 'tariffs',
+        title: 'Tarifas | AquaERP',
+        loadComponent: () =>
+          import('./features/tariffs/presentation/tariffs.page').then(
+            (component) => component.TariffsPage,
+          ),
+      },
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
     ],
   },
