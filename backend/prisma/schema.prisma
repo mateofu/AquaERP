@@ -36,6 +36,14 @@ enum AuditEntity {
   CUSTOMER
   PROPERTY
   METER
+  BILLING_PERIOD
+  METER_READING
+}
+
+enum BillingPeriodStatus {
+  DRAFT
+  OPEN
+  CLOSED
 }
 
 model User {
@@ -137,9 +145,50 @@ model Meter {
   updatedAt        DateTime  @updatedAt @map("updated_at")
 
   property Property @relation(fields: [propertyId], references: [id])
+  readings MeterReading[]
 
   @@index([propertyId])
   @@map("meters")
+}
+
+model BillingPeriod {
+  id        String              @id @default(uuid())
+  year      Int
+  month     Int
+  status    BillingPeriodStatus @default(DRAFT)
+  openedAt  DateTime?           @map("opened_at")
+  closedAt  DateTime?           @map("closed_at")
+  createdAt DateTime            @default(now()) @map("created_at")
+  updatedAt DateTime            @updatedAt @map("updated_at")
+  readings  MeterReading[]
+
+  @@unique([year, month])
+  @@index([status])
+  @@map("billing_periods")
+}
+
+model MeterReading {
+  id              String   @id @default(uuid())
+  meterId         String   @map("meter_id")
+  billingPeriodId String   @map("billing_period_id")
+  readingValue    Decimal  @db.Decimal(12, 3) @map("reading_value")
+  previousValue   Decimal  @db.Decimal(12, 3) @map("previous_value")
+  consumption     Decimal  @db.Decimal(12, 3)
+  readingDate     DateTime @map("reading_date")
+  hasAnomaly      Boolean  @default(false) @map("has_anomaly")
+  anomalyReason   String?  @map("anomaly_reason")
+  notes           String?
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  meter        Meter         @relation(fields: [meterId], references: [id])
+  billingPeriod BillingPeriod @relation(fields: [billingPeriodId], references: [id])
+
+  @@unique([meterId, billingPeriodId])
+  @@index([billingPeriodId])
+  @@index([meterId, readingDate])
+  @@index([hasAnomaly])
+  @@map("meter_readings")
 }
 
 model AuditLog {
