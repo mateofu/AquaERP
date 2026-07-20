@@ -30,13 +30,15 @@ header span {
 }
 
 .controls {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
   gap: .65rem;
   align-items: center;
 }
 
 mat-form-field {
-  width: min(300px, 100%);
+  width: 100%;
+  min-width: 0;
 }
 
 footer {
@@ -52,14 +54,6 @@ footer {
 }
 
 @media (max-width: 700px) {
-  .controls {
-    flex-wrap: wrap;
-  }
-
-  mat-form-field {
-    flex: 1 1 100%;
-  }
-
   .actions {
     flex-wrap: wrap;
   }

@@ -1,4 +1,4 @@
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { BreakpointObserver } from '@angular/cdk/layout';
 import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
@@ -42,10 +42,11 @@ export class MainLayoutComponent {
   private readonly breakpointObserver = inject(BreakpointObserver);
   private readonly authService = inject(AuthService);
   readonly session = inject(AuthSessionService);
-  readonly sidebarOpen = signal(true);
+  readonly sidebarOpen = signal(false);
+  readonly sidebarCollapsed = signal(false);
   readonly isCompact = toSignal(
     this.breakpointObserver
-      .observe([Breakpoints.Handset, Breakpoints.TabletPortrait])
+      .observe('(max-width: 600px)')
       .pipe(map((result) => result.matches)),
     { initialValue: false },
   );
@@ -60,7 +61,8 @@ export class MainLayoutComponent {
     { label: 'Suscriptores', icon: 'customers', route: '/customers' },
     { label: 'Predios', icon: 'properties', route: '/properties' },
     { label: 'Medidores', icon: 'meters', route: '/meters' },
-    { label: 'Lecturas', icon: 'readings', status: 'Fase 2' },
+    { label: 'Periodos', icon: 'periods', route: '/billing-periods' },
+    { label: 'Lecturas', icon: 'readings', route: '/meter-readings' },
     { label: 'Facturación', icon: 'billing', status: 'Fase 3' },
     { label: 'Pagos y cartera', icon: 'payments', status: 'Fase 4' },
   ];
@@ -69,6 +71,10 @@ export class MainLayoutComponent {
     if (this.isCompact()) {
       this.sidebarOpen.set(false);
     }
+  }
+
+  toggleSidebar(): void {
+    this.sidebarCollapsed.update((collapsed) => !collapsed);
   }
 
   logout(): void {

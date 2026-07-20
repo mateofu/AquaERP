@@ -1,0 +1,80 @@
+<header class="page-header">
+  <div><h1>Periodos</h1></div>
+  @if (canWrite()) {
+    <button mat-flat-button class="create-button" type="button" (click)="openCreate()">
+      <span aria-hidden="true">+</span> Crear periodo
+    </button>
+  }
+  <app-list-filters
+    placeholder="Buscar periodo"
+    [fields]="filterFields()"
+    (filterChange)="facade.applyFilters($event.filters)"
+  />
+</header>
+
+@if (facade.notice()) { <div class="feedback success" role="status">{{ facade.notice() }}</div> }
+@if (facade.error()) { <div class="feedback error" role="alert">{{ facade.error() }}</div> }
+
+<section class="panel">
+  <header class="list-heading">
+    <h2>Listado de periodos</h2>
+    <p>Ciclos mensuales para el registro de lecturas.</p>
+  </header>
+  @if (facade.loading()) {
+    <div class="empty-state">Cargando periodos…</div>
+  } @else if (!facade.periods().length) {
+    <div class="empty-state">No hay periodos para mostrar.</div>
+  } @else {
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th class="row-number">#</th><th>Periodo</th><th>Estado</th><th>Apertura</th><th>Cierre</th><th>Acciones</th></tr></thead>
+        <tbody>
+          @for (period of facade.periods(); track period.id) {
+            <tr>
+              <td class="row-number">{{ (facade.page() - 1) * facade.limit() + $index + 1 }}</td>
+              <td><strong>{{ monthLabel(period.month) }} {{ period.year }}</strong></td>
+              <td>
+                <span
+                  class="status"
+                  [class.draft]="period.status === 'DRAFT'"
+                  [class.open]="period.status === 'OPEN'"
+                  [class.closed]="period.status === 'CLOSED'"
+                >{{ statusLabel(period.status) }}</span>
+              </td>
+              <td>{{ period.openedAt ? (period.openedAt | date: 'dd/MM/yyyy') : '—' }}</td>
+              <td>{{ period.closedAt ? (period.closedAt | date: 'dd/MM/yyyy') : '—' }}</td>
+              <td class="actions">
+                @if (canWrite()) {
+                  @if (period.status === 'DRAFT') {
+                    <button mat-icon-button matTooltip="Editar periodo" aria-label="Editar periodo" (click)="openEdit(period)"><app-action-icon name="edit" /></button>
+                    <button mat-icon-button matTooltip="Abrir periodo" aria-label="Abrir periodo" (click)="facade.open(period)"><app-action-icon name="open" /></button>
+                  } @else if (period.status === 'OPEN') {
+                    <button mat-icon-button class="danger" matTooltip="Cerrar periodo" aria-label="Cerrar periodo" (click)="facade.close(period)"><app-action-icon name="close" /></button>
+                  }
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <footer class="pagination">
+      <button mat-icon-button [disabled]="!facade.hasPrevious()" aria-label="Página anterior" (click)="facade.previous()"><app-action-icon name="previous" /></button>
+      <span>Página {{ facade.page() }} de {{ facade.totalPages() }}</span>
+      <button mat-icon-button [disabled]="!facade.hasNext()" aria-label="Página siguiente" (click)="facade.next()"><app-action-icon name="next" /></button>
+    </footer>
+  }
+</section>
+
+@if (formOpen()) {
+  <div class="dialog-backdrop">
+    <section class="dialog" role="dialog" aria-modal="true">
+      <header><h2>{{ selected() ? 'Editar periodo' : 'Crear periodo' }}</h2><button mat-button type="button" (click)="closeForm()">Cerrar</button></header>
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <mat-form-field appearance="outline"><mat-label>Año</mat-label><input matInput type="number" formControlName="year" /><mat-error>Ingresa un año entre 2000 y 2100.</mat-error></mat-form-field>
+        <mat-form-field appearance="outline"><mat-label>Mes</mat-label><mat-select formControlName="month">@for (month of facade.months(); track month.value) { <mat-option [value]="+month.value">{{ month.label }}</mat-option> }</mat-select><mat-error>Selecciona un mes.</mat-error></mat-form-field>
+        <footer><button mat-button type="button" (click)="closeForm()">Cancelar</button><button mat-flat-button type="submit">Guardar periodo</button></footer>
+      </form>
+    </section>
+  </div>
+}

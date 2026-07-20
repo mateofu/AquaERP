@@ -18,7 +18,7 @@
         <mat-label>{{ field.label }}</mat-label>
         @if (field.type === 'select') {
           <mat-select
-            [value]="values()[field.key] ?? ''"
+            [value]="values()[field.key]"
             (valueChange)="updateValue(field.key, $event)"
           >
             <mat-option value="">{{ field.emptyLabel ?? 'Todos' }}</mat-option>
@@ -29,7 +29,7 @@
         } @else {
           <input
             matInput
-            [value]="values()[field.key] ?? ''"
+            [value]="values()[field.key]"
             (input)="updateValue(field.key, $any($event.target).value)"
           />
         }

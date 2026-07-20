@@ -8,10 +8,64 @@
   background: #f5f7f5;
 }
 
+.shell mat-sidenav-content {
+  min-width: 0;
+  overflow-x: hidden;
+}
+
 .sidebar {
   width: 270px;
   border-right: 1px solid #dde5e1;
   background: #fbfcfb;
+  transition: width 180ms ease;
+}
+
+.sidebar.collapsed {
+  width: 84px;
+}
+
+.sidebar-toggle {
+  position: fixed;
+  z-index: 20;
+  top: 112px;
+  left: 251px;
+  display: grid;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  place-items: center;
+  border: 1px solid #c9ddd7;
+  border-radius: 50%;
+  color: #24715f;
+  background: #f8fcfa;
+  box-shadow: 0 4px 12px rgb(27 105 89 / 14%);
+  cursor: pointer;
+  transition:
+    left 180ms ease,
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease;
+}
+
+.sidebar-toggle:hover {
+  color: #fff;
+  background: #287c69;
+  transform: translateY(-1px);
+  box-shadow: 0 7px 16px rgb(27 105 89 / 24%);
+}
+
+.sidebar-toggle:active {
+  transform: translateY(0) scale(0.96);
+}
+
+.sidebar-toggle svg {
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: currentcolor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .brand {
@@ -54,6 +108,32 @@
 
 .brand span:last-child {
   display: grid;
+}
+
+.collapsed .brand {
+  justify-content: center;
+  padding-inline: 0;
+}
+
+.collapsed .brand .brand-copy,
+.collapsed .nav-heading,
+.collapsed .nav-label,
+.collapsed .nav-item small,
+.collapsed .sidebar-footer {
+  display: none;
+}
+
+.collapsed nav {
+  padding-inline: 0.85rem;
+}
+
+.collapsed .nav-item {
+  justify-content: center;
+  padding: 0;
+}
+
+.sidebar-toggle.sidebar-collapsed {
+  left: 65px;
 }
 
 .brand strong {
@@ -216,6 +296,8 @@ nav {
 }
 
 .content {
+  width: 100%;
+  min-width: 0;
   min-height: calc(100dvh - 76px);
   padding: clamp(1.25rem, 3vw, 3rem);
 }
