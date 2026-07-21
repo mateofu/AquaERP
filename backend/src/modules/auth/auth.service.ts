@@ -107,7 +107,7 @@ export class AuthService {
   }
 
   async logout(
-    userId: string,
+    userId: number,
     refreshToken: string,
     ipAddress?: string,
   ): Promise<void> {
@@ -173,7 +173,7 @@ export class AuthService {
   }
 
   private mapToAuthUser(user: {
-    id: string;
+    id: number;
     email: string;
     firstName: string;
     lastName: string;

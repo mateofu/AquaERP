@@ -41,7 +41,7 @@ export class BillingPeriodsService {
     return { data, total };
   }
 
-  async findOne(id: string) {
+  async findOne(id: number) {
     const period = await this.repository.findById(id);
     if (!period) throw new NotFoundException('Periodo no encontrado');
     return period;
@@ -49,7 +49,7 @@ export class BillingPeriodsService {
 
   async create(
     dto: CreateBillingPeriodDto,
-    actorId: string,
+    actorId: number,
     ipAddress?: string,
   ) {
     const existing = await this.repository.findByYearMonth(dto.year, dto.month);
@@ -75,9 +75,9 @@ export class BillingPeriodsService {
   }
 
   async update(
-    id: string,
+    id: number,
     dto: UpdateBillingPeriodDto,
-    actorId: string,
+    actorId: number,
     ipAddress?: string,
   ) {
     const current = await this.findOne(id);
@@ -99,7 +99,7 @@ export class BillingPeriodsService {
     return this.auditUpdate(id, { ...dto }, current, actorId, ipAddress);
   }
 
-  async open(id: string, actorId: string, ipAddress?: string) {
+  async open(id: number, actorId: number, ipAddress?: string) {
     const current = await this.findOne(id);
     if (current.status !== BillingPeriodStatus.DRAFT) {
       throw new UnprocessableEntityException(
@@ -127,7 +127,7 @@ export class BillingPeriodsService {
     );
   }
 
-  async close(id: string, actorId: string, ipAddress?: string) {
+  async close(id: number, actorId: number, ipAddress?: string) {
     const current = await this.findOne(id);
     if (current.status !== BillingPeriodStatus.OPEN) {
       throw new UnprocessableEntityException(
@@ -145,10 +145,10 @@ export class BillingPeriodsService {
   }
 
   private auditUpdate(
-    id: string,
+    id: number,
     data: Prisma.BillingPeriodUpdateInput,
     current: BillingPeriod,
-    actorId: string,
+    actorId: number,
     ipAddress?: string,
   ) {
     return this.prisma.$transaction(async (tx) => {

@@ -40,8 +40,8 @@ export class MeterReadingsRepository {
     skip: number;
     take: number;
     search?: string;
-    billingPeriodId?: string;
-    meterId?: string;
+    billingPeriodId?: number;
+    meterId?: number;
     hasAnomaly?: boolean;
   }): Promise<MeterReadingDetail[]> {
     return this.prisma.meterReading.findMany({
@@ -55,14 +55,14 @@ export class MeterReadingsRepository {
 
   count(params: {
     search?: string;
-    billingPeriodId?: string;
-    meterId?: string;
+    billingPeriodId?: number;
+    meterId?: number;
     hasAnomaly?: boolean;
   }): Promise<number> {
     return this.prisma.meterReading.count({ where: this.filter(params) });
   }
 
-  findById(id: string): Promise<MeterReadingDetail | null> {
+  findById(id: number): Promise<MeterReadingDetail | null> {
     return this.prisma.meterReading.findUnique({
       where: { id },
       include: readingInclude,
@@ -70,8 +70,8 @@ export class MeterReadingsRepository {
   }
 
   findByMeterPeriod(
-    meterId: string,
-    billingPeriodId: string,
+    meterId: number,
+    billingPeriodId: number,
   ): Promise<MeterReading | null> {
     return this.prisma.meterReading.findUnique({
       where: { meterId_billingPeriodId: { meterId, billingPeriodId } },
@@ -79,10 +79,10 @@ export class MeterReadingsRepository {
   }
 
   findLatestBefore(
-    meterId: string,
+    meterId: number,
     year: number,
     month: number,
-    excludeId?: string,
+    excludeId?: number,
   ): Promise<MeterReading | null> {
     return this.prisma.meterReading.findFirst({
       where: {
@@ -108,7 +108,7 @@ export class MeterReadingsRepository {
   }
 
   update(
-    id: string,
+    id: number,
     data: Prisma.MeterReadingUpdateInput,
     client: Prisma.TransactionClient | PrismaService = this.prisma,
   ): Promise<MeterReadingDetail> {
@@ -121,8 +121,8 @@ export class MeterReadingsRepository {
 
   private filter(params: {
     search?: string;
-    billingPeriodId?: string;
-    meterId?: string;
+    billingPeriodId?: number;
+    meterId?: number;
     hasAnomaly?: boolean;
   }): Prisma.MeterReadingWhereInput {
     const search = params.search?.trim();

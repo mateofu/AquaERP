@@ -25,7 +25,7 @@ export class UsersRepository {
     });
   }
 
-  findByIdWithRoles(id: string): Promise<UserWithRoles | null> {
+  findByIdWithRoles(id: number): Promise<UserWithRoles | null> {
     return this.prisma.user.findUnique({
       where: { id },
       include: userWithRolesInclude,
@@ -80,7 +80,7 @@ export class UsersRepository {
   }
 
   update(
-    id: string,
+    id: number,
     data: Prisma.UserUpdateInput,
     roleNames?: RoleName[],
     client?: Prisma.TransactionClient,
@@ -95,7 +95,7 @@ export class UsersRepository {
   }
 
   deactivate(
-    id: string,
+    id: number,
     client: Prisma.TransactionClient | PrismaService = this.prisma,
   ): Promise<UserWithRoles> {
     return client.user.update({
@@ -107,7 +107,7 @@ export class UsersRepository {
 
   private async updateWithClient(
     client: Prisma.TransactionClient,
-    id: string,
+    id: number,
     data: Prisma.UserUpdateInput,
     roleNames?: RoleName[],
   ): Promise<UserWithRoles> {

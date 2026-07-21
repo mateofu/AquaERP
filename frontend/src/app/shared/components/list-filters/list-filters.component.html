@@ -14,6 +14,9 @@
       />
     </mat-form-field>
     @for (field of fields(); track field.key) {
+      @if (field.type === 'year') {
+        <app-date-field mode="year" [label]="field.label" min="2000" max="2100" [formControl]="yearControl(field.key)" />
+      } @else {
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
         <mat-label>{{ field.label }}</mat-label>
         @if (field.type === 'select') {
@@ -34,6 +37,7 @@
           />
         }
       </mat-form-field>
+      }
     }
     <ng-content />
   </div>

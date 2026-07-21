@@ -11,6 +11,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { finalize } from 'rxjs';
 import { ApiError } from '../../../../core/models/api-error.model';
+import { ActionIconComponent } from '../../../../shared/components/action-icon/action-icon.component';
 import { AuthService } from '../../application/auth.service';
 
 @Component({
@@ -20,6 +21,7 @@ import { AuthService } from '../../application/auth.service';
     MatFormFieldModule,
     MatInputModule,
     ReactiveFormsModule,
+    ActionIconComponent,
   ],
   templateUrl: './login.page.html',
   styleUrl: './login.page.scss',

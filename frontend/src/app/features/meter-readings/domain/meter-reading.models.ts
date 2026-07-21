@@ -1,7 +1,7 @@
 export interface MeterReading {
-  id: string;
-  meterId: string;
-  billingPeriodId: string;
+  id: number;
+  meterId: number;
+  billingPeriodId: number;
   readingValue: string;
   previousValue: string;
   consumption: string;
@@ -9,17 +9,17 @@ export interface MeterReading {
   hasAnomaly: boolean;
   anomalyReason: string | null;
   notes: string | null;
-  billingPeriod: { id: string; year: number; month: number; status: string };
+  billingPeriod: { id: number; year: number; month: number; status: string };
   meter: {
-    id: string;
+    id: number;
     serialNumber: string;
     brand: string | null;
     property: {
-      id: string;
+      id: number;
       code: string;
       address: string;
       customer: {
-        id: string;
+        id: number;
         documentNumber: string;
         firstName: string;
         lastName: string;
@@ -29,8 +29,8 @@ export interface MeterReading {
 }
 
 export interface MeterReadingInput {
-  meterId: string;
-  billingPeriodId: string;
+  meterId: number;
+  billingPeriodId: number;
   readingValue: number;
   readingDate: string;
   notes?: string;

@@ -27,7 +27,7 @@ export class CustomersService {
     return { data, total };
   }
 
-  async findOne(id: string) {
+  async findOne(id: number) {
     const customer = await this.customersRepository.findById(id);
 
     if (!customer) {
@@ -39,7 +39,7 @@ export class CustomersService {
 
   async create(
     dto: CreateCustomerDto,
-    actorId: string,
+    actorId: number,
     ipAddress?: string,
   ) {
     const existing = await this.customersRepository.findByDocumentNumber(
@@ -70,9 +70,9 @@ export class CustomersService {
   }
 
   async update(
-    id: string,
+    id: number,
     dto: UpdateCustomerDto,
-    actorId: string,
+    actorId: number,
     ipAddress?: string,
   ) {
     const current = await this.customersRepository.findById(id);
@@ -110,7 +110,7 @@ export class CustomersService {
     });
   }
 
-  async deactivate(id: string, actorId: string, ipAddress?: string) {
+  async deactivate(id: number, actorId: number, ipAddress?: string) {
     const current = await this.customersRepository.findById(id);
 
     if (!current) {

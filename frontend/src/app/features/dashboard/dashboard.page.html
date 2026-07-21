@@ -1,53 +1,68 @@
 <header class="page-header">
   <div>
-    <p class="eyebrow">Panel administrativo</p>
-    <h1>Hola, {{ session.user()?.firstName }}</h1>
-    <p>Aquí tendrás una vista rápida de la operación del acueducto.</p>
+    <p class="eyebrow">Resumen operativo</p>
+    <h1>Hola, {{ userDisplayName() }}</h1>
+    <p>Este es el estado actual de la operación del acueducto.</p>
   </div>
-  <span class="phase-label">Fase 0 · Fundación</span>
+  <div class="period-status">
+    <span>Periodo actual</span>
+    <strong>{{ periodLabel(summary().openPeriod) }}</strong>
+  </div>
 </header>
 
-<section class="status-grid" aria-label="Estado de módulos">
-  <article class="status-card featured">
-    <span class="card-index">01</span>
-    <div>
-      <p>Base administrativa</p>
-      <h2>Lista para conectar</h2>
-      <span>Suscriptores, predios y medidores</span>
-    </div>
-    <strong>Backend disponible</strong>
+@if (hasError()) {
+  <div class="dashboard-notice" role="alert">
+    Algunos indicadores no pudieron actualizarse. Puedes continuar usando los módulos.
+  </div>
+}
+
+<section class="metrics-grid" aria-label="Indicadores operativos">
+  <article class="metric-card featured">
+    <span class="metric-label">Cartera pendiente</span>
+    <strong>{{ loading() ? '—' : formatCurrency(summary().receivable) }}</strong>
+    <span>{{ summary().invoicesWithBalance }} facturas con saldo</span>
   </article>
 
-  <article class="status-card">
-    <span class="card-index">02</span>
-    <div>
-      <p>Siguiente entrega</p>
-      <h2>Gestión de suscriptores</h2>
-      <span>Listado, búsqueda, creación y edición</span>
-    </div>
-    <strong>Fase 1</strong>
+  <article class="metric-card">
+    <span class="metric-label">Suscriptores activos</span>
+    <strong>{{ loading() ? '—' : summary().customers }}</strong>
+    <a routerLink="/customers">Ver suscriptores →</a>
   </article>
 
-  <article class="status-card">
-    <span class="card-index">03</span>
-    <div>
-      <p>Ciclo operativo</p>
-      <h2>Lecturas y consumos</h2>
-      <span>Registro mensual y alertas</span>
-    </div>
-    <strong>Fase 2</strong>
+  <article class="metric-card">
+    <span class="metric-label">Predios activos</span>
+    <strong>{{ loading() ? '—' : summary().properties }}</strong>
+    <a routerLink="/properties">Ver predios →</a>
+  </article>
+
+  <article class="metric-card">
+    <span class="metric-label">Medidores activos</span>
+    <strong>{{ loading() ? '—' : summary().meters }}</strong>
+    <a routerLink="/meters">Ver medidores →</a>
+  </article>
+
+  <article class="metric-card attention">
+    <span class="metric-label">Lecturas pendientes</span>
+    <strong>{{ loading() ? '—' : summary().pendingReadings }}</strong>
+    <a routerLink="/meter-readings">Gestionar lecturas →</a>
+  </article>
+
+  <article class="metric-card" [class.danger]="summary().overdueInvoices > 0">
+    <span class="metric-label">Facturas vencidas</span>
+    <strong>{{ loading() ? '—' : summary().overdueInvoices }}</strong>
+    <a routerLink="/payments">Revisar cartera →</a>
   </article>
 </section>
 
-<section class="foundation">
+<section class="quick-actions">
   <div>
-    <p class="eyebrow">Fundación técnica</p>
-    <h2>Lo que ya está preparado</h2>
+    <p class="eyebrow">Accesos rápidos</p>
+    <h2>¿Qué necesitas hacer?</h2>
   </div>
-  <ul>
-    <li><span>✓</span> Inicio de sesión conectado al backend</li>
-    <li><span>✓</span> Renovación automática de sesión</li>
-    <li><span>✓</span> Protección de rutas y roles</li>
-    <li><span>✓</span> Navegación responsive</li>
-  </ul>
+  <nav aria-label="Acciones frecuentes">
+    <a class="primary-action" routerLink="/meter-readings">Registrar lectura</a>
+    <a routerLink="/invoices">Generar facturas</a>
+    <a routerLink="/payments">Registrar pago</a>
+    <a routerLink="/billing-periods">Gestionar periodos</a>
+  </nav>
 </section>

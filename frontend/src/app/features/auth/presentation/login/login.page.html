@@ -82,7 +82,9 @@
             [attr.aria-label]="hidePassword() ? 'Mostrar contraseña' : 'Ocultar contraseña'"
             (click)="hidePassword.set(!hidePassword())"
           >
-            {{ hidePassword() ? 'Ver' : 'Ocultar' }}
+            <app-action-icon
+              [name]="hidePassword() ? 'visibility' : 'visibility-off'"
+            />
           </button>
           @if (form.controls.password.hasError('required')) {
             <mat-error>La contraseña es obligatoria.</mat-error>

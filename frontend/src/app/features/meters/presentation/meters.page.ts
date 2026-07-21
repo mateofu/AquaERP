@@ -8,6 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActionIconComponent } from '../../../shared/components/action-icon/action-icon.component';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
+import { NotificationComponent } from '../../../shared/components/notification/notification.component';
 import { DateFieldComponent } from '../../../shared/components/date-field/date-field.component';
 import { ListFiltersComponent } from '../../../shared/components/list-filters/list-filters.component';
 import { ListFilterField } from '../../../shared/components/list-filters/list-filters.component';
@@ -20,6 +21,7 @@ import { Meter, MeterInput } from '../domain/meter.models';
   imports: [
     ActionIconComponent,
     ModalComponent,
+    NotificationComponent,
     DateFieldComponent,
     ListFiltersComponent,
     DatePipe,
@@ -65,7 +67,7 @@ export class MetersPage implements OnInit {
     },
   ]);
   readonly form = new FormGroup({
-    propertyId: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    propertyId: new FormControl<number | null>(null, { validators: [Validators.required] }),
     serialNumber: new FormControl('', {
       nonNullable: true,
       validators: [Validators.required, Validators.minLength(2)],
@@ -112,7 +114,7 @@ export class MetersPage implements OnInit {
     }
     const raw = this.form.getRawValue();
     const input: MeterInput = {
-      propertyId: raw.propertyId,
+      propertyId: raw.propertyId!,
       serialNumber: raw.serialNumber.trim(),
       ...(raw.brand.trim() && { brand: raw.brand.trim() }),
       ...(raw.installationDate && { installationDate: raw.installationDate }),

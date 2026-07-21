@@ -64,7 +64,7 @@ export class PropertiesController {
   @Get(':id')
   @Roles(...READ_ROLES)
   @ApiOperation({ summary: 'Obtiene un predio por ID' })
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: number) {
     return this.propertiesService.findOne(id);
   }
 
@@ -83,7 +83,7 @@ export class PropertiesController {
   @Roles(...WRITE_ROLES)
   @ApiOperation({ summary: 'Actualiza un predio' })
   update(
-    @Param('id') id: string,
+    @Param('id') id: number,
     @Body() dto: UpdatePropertyDto,
     @CurrentUser() user: AuthUser,
     @Req() request: Request,
@@ -95,7 +95,7 @@ export class PropertiesController {
   @Roles(...WRITE_ROLES)
   @ApiOperation({ summary: 'Desactiva un predio' })
   deactivate(
-    @Param('id') id: string,
+    @Param('id') id: number,
     @CurrentUser() user: AuthUser,
     @Req() request: Request,
   ) {

@@ -1,11 +1,11 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { PaymentMethod } from '@prisma/client';
-import { IsDateString, IsEnum, IsNumber, IsOptional, IsString, IsUUID, MaxLength, Min } from 'class-validator';
+import { IsDateString, IsEnum, IsInt, IsNumber, IsOptional, IsString, MaxLength, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 import { PaginationQueryDto } from '../../../common/dto/pagination-query.dto';
 
 export class CreatePaymentDto {
-  @ApiProperty() @IsUUID() invoiceId!: string;
+  @ApiProperty() @Type(() => Number) @IsInt() @Min(1) invoiceId!: number;
   @ApiProperty({ minimum: 0.01 }) @Type(() => Number) @IsNumber({ maxDecimalPlaces: 2 }) @Min(0.01) amount!: number;
   @ApiProperty({ format: 'date' }) @IsDateString({ strict: true }) paymentDate!: string;
   @ApiProperty({ enum: PaymentMethod }) @IsEnum(PaymentMethod) method!: PaymentMethod;
@@ -14,5 +14,5 @@ export class CreatePaymentDto {
 }
 
 export class PaymentQueryDto extends PaginationQueryDto {
-  @ApiPropertyOptional() @IsOptional() @IsUUID() invoiceId?: string;
+  @ApiPropertyOptional() @IsOptional() @Type(() => Number) @IsInt() @Min(1) invoiceId?: number;
 }

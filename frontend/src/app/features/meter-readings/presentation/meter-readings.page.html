@@ -11,8 +11,8 @@
     (filterChange)="facade.applyFilters($event.search, $event.filters)" />
 </header>
 
-@if (facade.notice()) { <div class="feedback success" role="status">{{ facade.notice() }}</div> }
-@if (facade.error()) { <div class="feedback error" role="alert">{{ facade.error() }}</div> }
+@if (facade.notice(); as message) { <app-notification kind="success" [message]="message" /> }
+@if (facade.error(); as message) { <app-notification kind="error" [message]="message" /> }
 
 <section class="panel">
   <header class="list-heading"><h2>Listado de lecturas</h2><p>Consumos calculados por medidor y periodo.</p></header>

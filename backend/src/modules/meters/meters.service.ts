@@ -23,7 +23,7 @@ export class MetersService {
     page: number,
     limit: number,
     search?: string,
-    propertyId?: string,
+    propertyId?: number,
   ) {
     const skip = (page - 1) * limit;
     const [data, total] = await Promise.all([
@@ -34,7 +34,7 @@ export class MetersService {
     return { data, total };
   }
 
-  async findOne(id: string) {
+  async findOne(id: number) {
     const meter = await this.metersRepository.findById(id);
 
     if (!meter) {
@@ -44,7 +44,7 @@ export class MetersService {
     return meter;
   }
 
-  async create(dto: CreateMeterDto, actorId: string, ipAddress?: string) {
+  async create(dto: CreateMeterDto, actorId: number, ipAddress?: string) {
     const property = await this.propertiesRepository.findById(dto.propertyId);
 
     if (!property || !property.isActive) {
@@ -89,9 +89,9 @@ export class MetersService {
   }
 
   async update(
-    id: string,
+    id: number,
     dto: UpdateMeterDto,
-    actorId: string,
+    actorId: number,
     ipAddress?: string,
   ) {
     const current = await this.metersRepository.findById(id);
@@ -151,7 +151,7 @@ export class MetersService {
     });
   }
 
-  async deactivate(id: string, actorId: string, ipAddress?: string) {
+  async deactivate(id: number, actorId: number, ipAddress?: string) {
     const current = await this.metersRepository.findById(id);
 
     if (!current) {

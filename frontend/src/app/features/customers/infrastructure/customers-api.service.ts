@@ -27,11 +27,11 @@ export class CustomersApiService {
     return this.http.post<Customer>(this.baseUrl, input);
   }
 
-  update(id: string, input: CustomerInput): Observable<Customer> {
+  update(id: number, input: CustomerInput): Observable<Customer> {
     return this.http.patch<Customer>(`${this.baseUrl}/${id}`, input);
   }
 
-  deactivate(id: string): Observable<Customer> {
+  deactivate(id: number): Observable<Customer> {
     return this.http.delete<Customer>(`${this.baseUrl}/${id}`);
   }
 }

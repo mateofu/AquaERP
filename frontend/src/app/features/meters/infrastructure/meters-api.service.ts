@@ -27,11 +27,11 @@ export class MetersApiService {
     return this.http.post<Meter>(this.baseUrl, input);
   }
 
-  update(id: string, input: MeterInput): Observable<Meter> {
+  update(id: number, input: MeterInput): Observable<Meter> {
     return this.http.patch<Meter>(`${this.baseUrl}/${id}`, input);
   }
 
-  deactivate(id: string): Observable<Meter> {
+  deactivate(id: number): Observable<Meter> {
     return this.http.delete<Meter>(`${this.baseUrl}/${id}`);
   }
 }

@@ -1,7 +1,7 @@
 export type TariffStatus = 'DRAFT' | 'ACTIVE' | 'RETIRED';
 
 export interface Tariff {
-  id: string;
+  id: number;
   name: string;
   fixedCharge: string;
   pricePerCubicMeter: string;

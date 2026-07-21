@@ -1,4 +1,4 @@
-import { Component, forwardRef, input, signal } from '@angular/core';
+import { Component, computed, forwardRef, input, signal } from '@angular/core';
 import {
   ControlValueAccessor,
   NG_VALUE_ACCESSOR,
@@ -30,6 +30,7 @@ import { MatNativeDateModule, MAT_DATE_LOCALE } from '@angular/material/core';
   styleUrl: './date-field.component.scss',
 })
 export class DateFieldComponent implements ControlValueAccessor {
+  readonly mode = input<'date' | 'year'>('date');
   readonly label = input.required<string>();
   readonly hint = input('');
   readonly required = input(false);
@@ -38,6 +39,7 @@ export class DateFieldComponent implements ControlValueAccessor {
   readonly value = signal<Date | null>(null);
   readonly disabled = signal(false);
   readonly touched = signal(false);
+  readonly yearText = computed(() => this.value()?.getFullYear().toString() ?? '');
 
   private onChange: (value: string) => void = () => undefined;
   private onTouched: () => void = () => undefined;
@@ -63,6 +65,13 @@ export class DateFieldComponent implements ControlValueAccessor {
     this.onChange(value ? this.format(value) : '');
   }
 
+  selectYear(value: Date): void {
+    const selected = new Date(value.getFullYear(), 0, 1);
+    this.value.set(selected);
+    this.onChange(String(selected.getFullYear()));
+    this.touch();
+  }
+
   touch(): void {
     this.touched.set(true);
     this.onTouched();
@@ -74,6 +83,9 @@ export class DateFieldComponent implements ControlValueAccessor {
 
   private parse(value?: string | null): Date | null {
     if (!value) return null;
+    if (/^\d{4}$/.test(value)) {
+      return new Date(Number(value), 0, 1);
+    }
     const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
     if (!match) return null;
     const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
@@ -82,6 +94,7 @@ export class DateFieldComponent implements ControlValueAccessor {
 
   private format(value: Date): string {
     const year = value.getFullYear();
+    if (this.mode() === 'year') return String(year);
     const month = String(value.getMonth() + 1).padStart(2, '0');
     const day = String(value.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;

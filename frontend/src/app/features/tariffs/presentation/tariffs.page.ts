@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActionIconComponent } from '../../../shared/components/action-icon/action-icon.component';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
+import { NotificationComponent } from '../../../shared/components/notification/notification.component';
 import { DateFieldComponent } from '../../../shared/components/date-field/date-field.component';
 import {
   ListFilterField,
@@ -26,6 +27,7 @@ import {
   imports: [
     ActionIconComponent,
     ModalComponent,
+    NotificationComponent,
     CurrencyPipe,
     DateFieldComponent,
     DatePipe,

@@ -32,7 +32,7 @@ export class MetersRepository {
     skip: number;
     take: number;
     search?: string;
-    propertyId?: string;
+    propertyId?: number;
   }): Promise<MeterWithProperty[]> {
     return this.prisma.meter.findMany({
       where: this.buildFilter(params.search, params.propertyId),
@@ -43,13 +43,13 @@ export class MetersRepository {
     });
   }
 
-  count(search?: string, propertyId?: string): Promise<number> {
+  count(search?: string, propertyId?: number): Promise<number> {
     return this.prisma.meter.count({
       where: this.buildFilter(search, propertyId),
     });
   }
 
-  findById(id: string): Promise<MeterWithProperty | null> {
+  findById(id: number): Promise<MeterWithProperty | null> {
     return this.prisma.meter.findUnique({
       where: { id },
       include: meterWithPropertyInclude,
@@ -71,7 +71,7 @@ export class MetersRepository {
   }
 
   update(
-    id: string,
+    id: number,
     data: Prisma.MeterUpdateInput,
     client: Prisma.TransactionClient | PrismaService = this.prisma,
   ): Promise<MeterWithProperty> {
@@ -84,7 +84,7 @@ export class MetersRepository {
 
   private buildFilter(
     search?: string,
-    propertyId?: string,
+    propertyId?: number,
   ): Prisma.MeterWhereInput {
     const filters: Prisma.MeterWhereInput[] = [{ isActive: true }];
 

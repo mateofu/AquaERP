@@ -3,10 +3,10 @@ import { Transform, Type } from 'class-transformer';
 import {
   IsBoolean,
   IsDateString,
+  IsInt,
   IsNumber,
   IsOptional,
   IsString,
-  IsUUID,
   MaxLength,
   Min,
 } from 'class-validator';
@@ -14,12 +14,16 @@ import { PaginationQueryDto } from '../../../common/dto/pagination-query.dto';
 
 export class CreateMeterReadingDto {
   @ApiProperty()
-  @IsUUID()
-  meterId!: string;
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  meterId!: number;
 
   @ApiProperty()
-  @IsUUID()
-  billingPeriodId!: string;
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  billingPeriodId!: number;
 
   @ApiProperty({ example: 1250.5, minimum: 0 })
   @Type(() => Number)
@@ -45,13 +49,17 @@ export class UpdateMeterReadingDto extends PartialType(
 export class MeterReadingQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional()
   @IsOptional()
-  @IsUUID()
-  billingPeriodId?: string;
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  billingPeriodId?: number;
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsUUID()
-  meterId?: string;
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  meterId?: number;
 
   @ApiPropertyOptional()
   @IsOptional()

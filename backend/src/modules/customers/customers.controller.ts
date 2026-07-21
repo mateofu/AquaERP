@@ -62,7 +62,7 @@ export class CustomersController {
   @Get(':id')
   @Roles(...READ_ROLES)
   @ApiOperation({ summary: 'Obtiene un suscriptor por ID' })
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: number) {
     return this.customersService.findOne(id);
   }
 
@@ -81,7 +81,7 @@ export class CustomersController {
   @Roles(...WRITE_ROLES)
   @ApiOperation({ summary: 'Actualiza un suscriptor' })
   update(
-    @Param('id') id: string,
+    @Param('id') id: number,
     @Body() dto: UpdateCustomerDto,
     @CurrentUser() user: AuthUser,
     @Req() request: Request,
@@ -93,7 +93,7 @@ export class CustomersController {
   @Roles(...WRITE_ROLES)
   @ApiOperation({ summary: 'Desactiva un suscriptor' })
   deactivate(
-    @Param('id') id: string,
+    @Param('id') id: number,
     @CurrentUser() user: AuthUser,
     @Req() request: Request,
   ) {

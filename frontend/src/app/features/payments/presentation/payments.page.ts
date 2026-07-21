@@ -7,11 +7,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { DateFieldComponent } from '../../../shared/components/date-field/date-field.component';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
+import { NotificationComponent } from '../../../shared/components/notification/notification.component';
 import { AuthSessionService } from '../../auth/application/auth-session.service';
 import { PaymentsFacade } from '../application/payments.facade';
 import { PAYMENT_METHOD_LABELS, PaymentMethod, PortfolioInvoice } from '../domain/payment.models';
 
-@Component({ selector: 'app-payments-page', imports: [CurrencyPipe, DateFieldComponent, DatePipe, MatButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, ModalComponent, ReactiveFormsModule], providers: [PaymentsFacade], templateUrl: './payments.page.html', styleUrl: './payments.page.scss' })
+@Component({ selector: 'app-payments-page', imports: [CurrencyPipe, DateFieldComponent, DatePipe, MatButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, ModalComponent, NotificationComponent, ReactiveFormsModule], providers: [PaymentsFacade], templateUrl: './payments.page.html', styleUrl: './payments.page.scss' })
 export class PaymentsPage implements OnInit {
   readonly facade = inject(PaymentsFacade); private readonly session = inject(AuthSessionService);
   readonly formOpen = signal(false); readonly selected = signal<PortfolioInvoice | null>(null);

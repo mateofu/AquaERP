@@ -1,15 +1,16 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { InvoiceStatus } from '@prisma/client';
-import { IsDateString, IsEnum, IsOptional, IsString, IsUUID, MaxLength, MinLength } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsDateString, IsEnum, IsInt, IsOptional, IsString, MaxLength, Min, MinLength } from 'class-validator';
 import { PaginationQueryDto } from '../../../common/dto/pagination-query.dto';
 
 export class GenerateInvoiceDto {
-  @ApiProperty() @IsUUID() meterReadingId!: string;
+  @ApiProperty() @Type(() => Number) @IsInt() @Min(1) meterReadingId!: number;
   @ApiPropertyOptional({ format: 'date' }) @IsOptional() @IsDateString({ strict: true }) issueDate?: string;
   @ApiPropertyOptional({ format: 'date' }) @IsOptional() @IsDateString({ strict: true }) dueDate?: string;
 }
 export class GenerateInvoiceBatchDto {
-  @ApiProperty() @IsUUID() billingPeriodId!: string;
+  @ApiProperty() @Type(() => Number) @IsInt() @Min(1) billingPeriodId!: number;
   @ApiPropertyOptional({ format: 'date' }) @IsOptional() @IsDateString({ strict: true }) issueDate?: string;
   @ApiPropertyOptional({ format: 'date' }) @IsOptional() @IsDateString({ strict: true }) dueDate?: string;
 }
@@ -18,6 +19,6 @@ export class VoidInvoiceDto {
 }
 export class InvoiceQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional({ enum: InvoiceStatus }) @IsOptional() @IsEnum(InvoiceStatus) status?: InvoiceStatus;
-  @ApiPropertyOptional() @IsOptional() @IsUUID() billingPeriodId?: string;
-  @ApiPropertyOptional() @IsOptional() @IsUUID() customerId?: string;
+  @ApiPropertyOptional() @IsOptional() @Type(() => Number) @IsInt() @Min(1) billingPeriodId?: number;
+  @ApiPropertyOptional() @IsOptional() @Type(() => Number) @IsInt() @Min(1) customerId?: number;
 }

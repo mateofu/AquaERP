@@ -8,6 +8,14 @@ input[readonly] {
   cursor: pointer;
 }
 
+.picker-anchor {
+  position: fixed;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
 :host ::ng-deep .mat-datepicker-toggle {
   color: #287765;
 }

@@ -60,7 +60,7 @@ export class MetersController {
   @Get(':id')
   @Roles(...READ_ROLES)
   @ApiOperation({ summary: 'Obtiene un medidor por ID' })
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: number) {
     return this.metersService.findOne(id);
   }
 
@@ -79,7 +79,7 @@ export class MetersController {
   @Roles(...WRITE_ROLES)
   @ApiOperation({ summary: 'Actualiza un medidor' })
   update(
-    @Param('id') id: string,
+    @Param('id') id: number,
     @Body() dto: UpdateMeterDto,
     @CurrentUser() user: AuthUser,
     @Req() request: Request,
@@ -91,7 +91,7 @@ export class MetersController {
   @Roles(...WRITE_ROLES)
   @ApiOperation({ summary: 'Desactiva un medidor' })
   deactivate(
-    @Param('id') id: string,
+    @Param('id') id: number,
     @CurrentUser() user: AuthUser,
     @Req() request: Request,
   ) {

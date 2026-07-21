@@ -25,7 +25,7 @@ export class MeterReadingsApiService {
     return this.http.post<MeterReading>(this.baseUrl, input);
   }
 
-  update(id: string, input: MeterReadingInput): Observable<MeterReading> {
+  update(id: number, input: MeterReadingInput): Observable<MeterReading> {
     return this.http.patch<MeterReading>(`${this.baseUrl}/${id}`, input);
   }
 }

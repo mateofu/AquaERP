@@ -26,7 +26,7 @@ export class CustomersRepository {
     });
   }
 
-  findById(id: string): Promise<Customer | null> {
+  findById(id: number): Promise<Customer | null> {
     return this.prisma.customer.findUnique({ where: { id } });
   }
 
@@ -42,7 +42,7 @@ export class CustomersRepository {
   }
 
   update(
-    id: string,
+    id: number,
     data: Prisma.CustomerUpdateInput,
     client: Prisma.TransactionClient | PrismaService = this.prisma,
   ): Promise<Customer> {

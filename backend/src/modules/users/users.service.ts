@@ -32,7 +32,7 @@ export class UsersService {
     };
   }
 
-  async findOne(id: string): Promise<UserResponseDto> {
+  async findOne(id: number): Promise<UserResponseDto> {
     const user = await this.usersRepository.findByIdWithRoles(id);
 
     if (!user) {
@@ -44,7 +44,7 @@ export class UsersService {
 
   async create(
     dto: CreateUserDto,
-    actorId: string,
+    actorId: number,
     ipAddress?: string,
   ): Promise<UserResponseDto> {
     const existing = await this.usersRepository.findByEmailWithRoles(dto.email);
@@ -83,9 +83,9 @@ export class UsersService {
   }
 
   async update(
-    id: string,
+    id: number,
     dto: UpdateUserDto,
-    actorId: string,
+    actorId: number,
     ipAddress?: string,
   ): Promise<UserResponseDto> {
     const current = await this.usersRepository.findByIdWithRoles(id);
@@ -141,8 +141,8 @@ export class UsersService {
   }
 
   async deactivate(
-    id: string,
-    actorId: string,
+    id: number,
+    actorId: number,
     ipAddress?: string,
   ): Promise<UserResponseDto> {
     const current = await this.usersRepository.findByIdWithRoles(id);
