@@ -66,17 +66,18 @@
 </section>
 
 @if (formOpen()) {
-  <div class="dialog-backdrop">
+  <app-modal label="Formulario de tarifa" (closed)="closeForm()">
     <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="tariff-form-title">
-      <header><h2 id="tariff-form-title">{{ selected() ? 'Editar tarifa' : 'Crear tarifa' }}</h2><button mat-button type="button" (click)="closeForm()">Cerrar</button></header>
+      <header><h2 id="tariff-form-title">{{ selected() ? 'Editar tarifa' : 'Crear tarifa' }}</h2><button mat-icon-button class="modal-close" type="button" (click)="closeForm()" aria-label="Cerrar modal"><span aria-hidden="true">×</span></button></header>
       <form [formGroup]="form" (ngSubmit)="submit()">
         <mat-form-field appearance="outline" class="full-width"><mat-label>Nombre</mat-label><input matInput formControlName="name" /><mat-error>Ingresa un nombre de al menos 3 caracteres.</mat-error></mat-form-field>
         <mat-form-field appearance="outline"><mat-label>Cargo fijo</mat-label><span matTextPrefix>$&nbsp;</span><input matInput type="number" min="0" step="0.01" formControlName="fixedCharge" /><mat-error>Ingresa un valor igual o mayor a cero.</mat-error></mat-form-field>
         <mat-form-field appearance="outline"><mat-label>Valor por m³</mat-label><span matTextPrefix>$&nbsp;</span><input matInput type="number" min="0" step="0.01" formControlName="pricePerCubicMeter" /><mat-error>Ingresa un valor igual o mayor a cero.</mat-error></mat-form-field>
         <app-date-field label="Vigente desde" formControlName="validFrom" [required]="true" />
         <app-date-field label="Vigente hasta" hint="Opcional" formControlName="validTo" [min]="form.controls.validFrom.value" />
-        <footer><button mat-button type="button" (click)="closeForm()">Cancelar</button><button mat-flat-button type="submit" [disabled]="facade.saving()">{{ facade.saving() ? 'Guardando…' : 'Guardar tarifa' }}</button></footer>
+        <footer><button mat-flat-button type="submit" [disabled]="facade.saving()">{{ facade.saving() ? 'Guardando…' : 'Guardar tarifa' }}</button>
+<button mat-button type="button" (click)="closeForm()">Cancelar</button></footer>
       </form>
     </section>
-  </div>
+  </app-modal>
 }

@@ -67,14 +67,15 @@
 </section>
 
 @if (formOpen()) {
-  <div class="dialog-backdrop">
+  <app-modal label="Formulario de periodo de facturación" (closed)="closeForm()">
     <section class="dialog" role="dialog" aria-modal="true">
-      <header><h2>{{ selected() ? 'Editar periodo' : 'Crear periodo' }}</h2><button mat-button type="button" (click)="closeForm()">Cerrar</button></header>
+      <header><h2>{{ selected() ? 'Editar periodo' : 'Crear periodo' }}</h2><button mat-icon-button class="modal-close" type="button" (click)="closeForm()" aria-label="Cerrar modal"><span aria-hidden="true">×</span></button></header>
       <form [formGroup]="form" (ngSubmit)="submit()">
         <mat-form-field appearance="outline"><mat-label>Año</mat-label><input matInput type="number" formControlName="year" /><mat-error>Ingresa un año entre 2000 y 2100.</mat-error></mat-form-field>
         <mat-form-field appearance="outline"><mat-label>Mes</mat-label><mat-select formControlName="month">@for (month of facade.months(); track month.value) { <mat-option [value]="+month.value">{{ month.label }}</mat-option> }</mat-select><mat-error>Selecciona un mes.</mat-error></mat-form-field>
-        <footer><button mat-button type="button" (click)="closeForm()">Cancelar</button><button mat-flat-button type="submit">Guardar periodo</button></footer>
+        <footer><button mat-flat-button type="submit">Guardar periodo</button>
+<button mat-button type="button" (click)="closeForm()">Cancelar</button></footer>
       </form>
     </section>
-  </div>
+  </app-modal>
 }

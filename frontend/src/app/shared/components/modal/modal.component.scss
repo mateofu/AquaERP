@@ -1,0 +1,61 @@
+:host {
+  display: contents;
+}
+
+dialog {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  width: 100vw;
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: clamp(.75rem, 2vw, 1.5rem);
+  overflow: auto;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+}
+
+dialog::backdrop {
+  background: rgb(15 37 31 / 58%);
+  backdrop-filter: blur(2px);
+}
+
+:host ::ng-deep .modal-close {
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  color: #245ab5;
+  background: #edf3fc;
+  transform: translateY(-6px);
+}
+
+:host ::ng-deep .modal-close span {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  font: 400 1.85rem/1 Arial, sans-serif;
+}
+
+:host ::ng-deep .modal-close:hover {
+  background: #dfe9f8;
+}
+
+:host ::ng-deep .modal-close:focus-visible {
+  outline: 3px solid rgb(36 90 181 / 30%);
+  outline-offset: 2px;
+}
+
+@media (max-width: 600px) {
+  dialog {
+    align-items: flex-end;
+    padding: .5rem;
+  }
+}

@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActionIconComponent } from '../../../shared/components/action-icon/action-icon.component';
+import { ModalComponent } from '../../../shared/components/modal/modal.component';
 import { DateFieldComponent } from '../../../shared/components/date-field/date-field.component';
 import {
   ListFilterField,
@@ -24,6 +25,7 @@ import {
   selector: 'app-tariffs-page',
   imports: [
     ActionIconComponent,
+    ModalComponent,
     CurrencyPipe,
     DateFieldComponent,
     DatePipe,

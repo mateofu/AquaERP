@@ -26,7 +26,7 @@ td small { margin-top:.25rem; color:#82908c; font-size:.68rem; }
 .feedback { position:fixed; z-index:80; top:14px; left:50%; width:min(480px,calc(100vw - 2rem)); padding:.9rem 1.1rem; border-radius:11px; text-align:center; transform:translateX(-50%); box-shadow:0 12px 35px rgb(24 54 46 / 16%); }
 .feedback.success { color:#185e4e; background:#e4f4ee; }
 .feedback.error { color:#962e26; background:#fbe9e7; }
-.dialog-backdrop { position:fixed; z-index:100; inset:0; display:grid; place-items:center; padding:1rem; background:rgb(15 37 31 / 48%); }
+
 .dialog { width:min(680px,100%); padding:1.5rem; border-radius:16px; background:#fff; }
 .dialog > header,.dialog form > footer { display:flex; align-items:center; justify-content:space-between; gap:1rem; }
 .dialog h2 { margin:0 0 1rem; color:#203b34; }

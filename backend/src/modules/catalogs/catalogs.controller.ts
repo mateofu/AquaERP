@@ -24,6 +24,12 @@ export class CatalogsController {
     return { data: this.service.billingPeriodStatuses() };
   }
 
+  @Get('months')
+  @ApiOperation({ summary: 'Opciones de meses del año' })
+  months() {
+    return { data: this.service.months() };
+  }
+
   @Get('customers')
   @ApiOperation({ summary: 'Opciones de suscriptores activos' })
   async customers(@Query() query: CatalogQueryDto) {
