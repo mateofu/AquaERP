@@ -116,7 +116,7 @@
 </section>
 
 @if (formOpen()) {
-  <div class="dialog-backdrop">
+  <app-modal label="Formulario de suscriptor" (closed)="closeForm()">
     <section class="dialog" role="dialog" aria-modal="true"
       aria-labelledby="customer-form-title">
       <header>
@@ -124,7 +124,7 @@
           <p class="eyebrow">{{ selected() ? 'Actualizar datos' : 'Nuevo registro' }}</p>
           <h2 id="customer-form-title">{{ selected() ? 'Editar suscriptor' : 'Crear suscriptor' }}</h2>
         </div>
-        <button mat-button type="button" (click)="closeForm()">Cerrar</button>
+        <button mat-icon-button class="modal-close" type="button" (click)="closeForm()" aria-label="Cerrar modal"><span aria-hidden="true">×</span></button>
       </header>
       <form [formGroup]="form" (ngSubmit)="submit()">
         <div class="form-grid">
@@ -168,12 +168,12 @@
           </mat-form-field>
         </div>
         <footer>
-          <button mat-button type="button" (click)="closeForm()">Cancelar</button>
           <button mat-flat-button type="submit" [disabled]="facade.saving()">
             {{ facade.saving() ? 'Guardando…' : 'Guardar suscriptor' }}
           </button>
+<button mat-button type="button" (click)="closeForm()">Cancelar</button>
         </footer>
       </form>
     </section>
-  </div>
+  </app-modal>
 }

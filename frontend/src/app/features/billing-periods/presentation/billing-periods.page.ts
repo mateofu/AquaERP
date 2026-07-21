@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActionIconComponent } from '../../../shared/components/action-icon/action-icon.component';
+import { ModalComponent } from '../../../shared/components/modal/modal.component';
 import {
   ListFilterField,
   ListFiltersComponent,
@@ -19,6 +20,7 @@ import { BillingPeriod } from '../domain/billing-period.models';
   selector: 'app-billing-periods-page',
   imports: [
     ActionIconComponent,
+    ModalComponent,
     DatePipe,
     ListFiltersComponent,
     MatButtonModule,

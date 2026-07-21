@@ -60,6 +60,14 @@ export class CatalogsService {
     }));
   }
 
+  months(): CatalogOption[] {
+    return MONTHS.map((label, index) => ({
+      value: String(index + 1),
+      label,
+      metadata: { month: index + 1 },
+    }));
+  }
+
   async customers(search?: string, limit = 50): Promise<CatalogOption[]> {
     const term = search?.trim();
     const customers = await this.prisma.customer.findMany({

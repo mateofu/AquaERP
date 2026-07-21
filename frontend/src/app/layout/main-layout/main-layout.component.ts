@@ -64,7 +64,7 @@ export class MainLayoutComponent {
     { label: 'Periodos', icon: 'periods', route: '/billing-periods' },
     { label: 'Lecturas', icon: 'readings', route: '/meter-readings' },
     { label: 'Tarifas', icon: 'billing', route: '/tariffs' },
-    { label: 'Facturación', icon: 'billing', status: 'Fase 3' },
+    { label: 'Facturación', icon: 'billing', route: '/invoices' },
     { label: 'Pagos y cartera', icon: 'payments', status: 'Fase 4' },
   ];
 

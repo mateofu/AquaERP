@@ -1,0 +1,8 @@
+<dialog
+  #dialog
+  [attr.aria-label]="label()"
+  (cancel)="handleCancel($event)"
+  (pointerdown)="handleBackdropClick($event)"
+>
+  <ng-content />
+</dialog>

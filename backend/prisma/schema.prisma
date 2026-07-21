@@ -38,12 +38,33 @@ enum AuditEntity {
   METER
   BILLING_PERIOD
   METER_READING
+  TARIFF
+  INVOICE
 }
 
 enum BillingPeriodStatus {
   DRAFT
   OPEN
   CLOSED
+}
+
+enum TariffStatus {
+  DRAFT
+  ACTIVE
+  RETIRED
+}
+
+enum InvoiceStatus {
+  DRAFT
+  ISSUED
+  PAID
+  OVERDUE
+  VOID
+}
+
+enum InvoiceItemType {
+  FIXED_CHARGE
+  CONSUMPTION
 }
 
 model User {
@@ -112,6 +133,7 @@ model Customer {
   updatedAt      DateTime     @updatedAt @map("updated_at")
 
   properties Property[]
+  invoices   Invoice[]
 
   @@map("customers")
 }
@@ -146,6 +168,7 @@ model Meter {
 
   property Property @relation(fields: [propertyId], references: [id])
   readings MeterReading[]
+  invoices Invoice[]
 
   @@index([propertyId])
   @@map("meters")
@@ -161,6 +184,7 @@ model BillingPeriod {
   createdAt DateTime            @default(now()) @map("created_at")
   updatedAt DateTime            @updatedAt @map("updated_at")
   readings  MeterReading[]
+  invoices  Invoice[]
 
   @@unique([year, month])
   @@index([status])
@@ -183,12 +207,85 @@ model MeterReading {
 
   meter        Meter         @relation(fields: [meterId], references: [id])
   billingPeriod BillingPeriod @relation(fields: [billingPeriodId], references: [id])
+  invoice       Invoice?
 
   @@unique([meterId, billingPeriodId])
   @@index([billingPeriodId])
   @@index([meterId, readingDate])
   @@index([hasAnomaly])
   @@map("meter_readings")
+}
+
+model Tariff {
+  id                 String       @id @default(uuid())
+  name               String
+  fixedCharge        Decimal      @db.Decimal(14, 2) @map("fixed_charge")
+  pricePerCubicMeter Decimal      @db.Decimal(14, 2) @map("price_per_cubic_meter")
+  validFrom          DateTime     @db.Date @map("valid_from")
+  validTo            DateTime?    @db.Date @map("valid_to")
+  status             TariffStatus @default(DRAFT)
+  createdAt          DateTime     @default(now()) @map("created_at")
+  updatedAt          DateTime     @updatedAt @map("updated_at")
+  invoices           Invoice[]
+
+  @@index([status])
+  @@index([validFrom, validTo])
+  @@map("tariffs")
+}
+
+model Invoice {
+  id                 String        @id @default(uuid())
+  sequence           Int           @unique @default(autoincrement())
+  billingPeriodId    String        @map("billing_period_id")
+  meterReadingId     String        @unique @map("meter_reading_id")
+  meterId            String        @map("meter_id")
+  customerId         String        @map("customer_id")
+  tariffId           String        @map("tariff_id")
+  status             InvoiceStatus @default(DRAFT)
+  issueDate          DateTime      @db.Date @map("issue_date")
+  dueDate            DateTime      @db.Date @map("due_date")
+  customerName       String        @map("customer_name")
+  customerDocument   String        @map("customer_document")
+  propertyCode       String        @map("property_code")
+  propertyAddress    String        @map("property_address")
+  meterSerial        String        @map("meter_serial")
+  previousReading    Decimal       @db.Decimal(12, 3) @map("previous_reading")
+  currentReading     Decimal       @db.Decimal(12, 3) @map("current_reading")
+  consumption        Decimal       @db.Decimal(12, 3)
+  subtotal           Decimal       @db.Decimal(14, 2)
+  total              Decimal       @db.Decimal(14, 2)
+  issuedAt           DateTime?     @map("issued_at")
+  voidedAt           DateTime?     @map("voided_at")
+  voidReason         String?       @map("void_reason")
+  createdAt          DateTime      @default(now()) @map("created_at")
+  updatedAt          DateTime      @updatedAt @map("updated_at")
+
+  billingPeriod BillingPeriod @relation(fields: [billingPeriodId], references: [id])
+  meterReading  MeterReading  @relation(fields: [meterReadingId], references: [id])
+  meter         Meter         @relation(fields: [meterId], references: [id])
+  customer      Customer      @relation(fields: [customerId], references: [id])
+  tariff        Tariff        @relation(fields: [tariffId], references: [id])
+  items         InvoiceItem[]
+
+  @@unique([meterId, billingPeriodId])
+  @@index([billingPeriodId, status])
+  @@index([customerId])
+  @@map("invoices")
+}
+
+model InvoiceItem {
+  id          String          @id @default(uuid())
+  invoiceId   String          @map("invoice_id")
+  type        InvoiceItemType
+  description String
+  quantity    Decimal         @db.Decimal(12, 3)
+  unitPrice   Decimal         @db.Decimal(14, 2) @map("unit_price")
+  amount      Decimal         @db.Decimal(14, 2)
+  createdAt   DateTime        @default(now()) @map("created_at")
+  invoice     Invoice         @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@map("invoice_items")
 }
 
 model AuditLog {
