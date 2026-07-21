@@ -1,5 +1,5 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
@@ -46,15 +46,14 @@ export class MainLayoutComponent {
   readonly sidebarCollapsed = signal(false);
   readonly isCompact = toSignal(
     this.breakpointObserver
-      .observe('(max-width: 600px)')
+      .observe('(max-width: 900px)')
       .pipe(map((result) => result.matches)),
     { initialValue: false },
   );
-  readonly initials = computed(() => {
-    const user = this.session.user();
-    return user
-      ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase()
-      : 'AU';
+  private readonly closeSidebarWhenCompact = effect(() => {
+    if (this.isCompact()) {
+      this.sidebarOpen.set(false);
+    }
   });
   readonly navigation: NavigationItem[] = [
     { label: 'Inicio', icon: 'home', route: '/dashboard' },
@@ -65,12 +64,18 @@ export class MainLayoutComponent {
     { label: 'Lecturas', icon: 'readings', route: '/meter-readings' },
     { label: 'Tarifas', icon: 'billing', route: '/tariffs' },
     { label: 'Facturación', icon: 'billing', route: '/invoices' },
-    { label: 'Pagos y cartera', icon: 'payments', status: 'Fase 4' },
+    { label: 'Pagos y cartera', icon: 'payments', route: '/payments' },
   ];
 
   closeOnCompact(): void {
     if (this.isCompact()) {
       this.sidebarOpen.set(false);
+    }
+  }
+
+  syncSidebarState(opened: boolean): void {
+    if (this.isCompact()) {
+      this.sidebarOpen.set(opened);
     }
   }
 

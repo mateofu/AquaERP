@@ -40,6 +40,7 @@ enum AuditEntity {
   METER_READING
   TARIFF
   INVOICE
+  PAYMENT
 }
 
 enum BillingPeriodStatus {
@@ -67,6 +68,13 @@ enum InvoiceItemType {
   CONSUMPTION
 }
 
+enum PaymentMethod {
+  CASH
+  BANK_TRANSFER
+  CARD
+  OTHER
+}
+
 model User {
   id           String   @id @default(uuid())
   email        String   @unique
@@ -80,6 +88,7 @@ model User {
   roles         UserRole[]
   refreshTokens RefreshToken[]
   auditLogs     AuditLog[]
+  recordedPayments Payment[] @relation("PaymentRecordedBy")
 
   @@map("users")
 }
@@ -266,11 +275,31 @@ model Invoice {
   customer      Customer      @relation(fields: [customerId], references: [id])
   tariff        Tariff        @relation(fields: [tariffId], references: [id])
   items         InvoiceItem[]
+  payments      Payment[]
 
   @@unique([meterId, billingPeriodId])
   @@index([billingPeriodId, status])
   @@index([customerId])
   @@map("invoices")
+}
+
+model Payment {
+  id           String        @id @default(uuid())
+  invoiceId    String        @map("invoice_id")
+  amount       Decimal       @db.Decimal(14, 2)
+  paymentDate  DateTime      @db.Date @map("payment_date")
+  method       PaymentMethod
+  reference    String?       @unique
+  notes        String?
+  recordedById String        @map("recorded_by_id")
+  createdAt    DateTime      @default(now()) @map("created_at")
+
+  invoice    Invoice @relation(fields: [invoiceId], references: [id])
+  recordedBy User    @relation("PaymentRecordedBy", fields: [recordedById], references: [id])
+
+  @@index([invoiceId, paymentDate])
+  @@index([paymentDate])
+  @@map("payments")
 }
 
 model InvoiceItem {
