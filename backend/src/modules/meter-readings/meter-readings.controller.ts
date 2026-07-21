@@ -54,7 +54,7 @@ export class MeterReadingsController {
   @Get(':id')
   @Roles(...READ_ROLES)
   @ApiOperation({ summary: 'Obtiene una lectura por ID' })
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: number) {
     return this.service.findOne(id);
   }
 
@@ -73,7 +73,7 @@ export class MeterReadingsController {
   @Roles(...WRITE_ROLES)
   @ApiOperation({ summary: 'Actualiza una lectura de un periodo abierto' })
   update(
-    @Param('id') id: string,
+    @Param('id') id: number,
     @Body() dto: UpdateMeterReadingDto,
     @CurrentUser() user: AuthUser,
     @Req() request: Request,

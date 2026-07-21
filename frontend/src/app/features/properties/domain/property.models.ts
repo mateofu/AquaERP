@@ -1,13 +1,13 @@
 export interface PropertyCustomer {
-  id: string;
+  id: number;
   documentNumber: string;
   firstName: string;
   lastName: string;
 }
 
 export interface Property {
-  id: string;
-  customerId: string;
+  id: number;
+  customerId: number;
   code: string;
   address: string;
   municipality: string;
@@ -19,7 +19,7 @@ export interface Property {
 }
 
 export interface PropertyInput {
-  customerId: string;
+  customerId: number;
   code: string;
   address: string;
   municipality: string;

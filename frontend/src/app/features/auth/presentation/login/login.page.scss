@@ -4,29 +4,25 @@
 }
 
 .login-shell {
+  position: relative;
   display: grid;
   min-height: 100dvh;
-  grid-template-columns: minmax(420px, 1.05fr) minmax(420px, 0.95fr);
-  background: #f6f8f6;
+  grid-template-columns: 1fr;
+  overflow: hidden;
+  background: #123d35;
 }
 
 .brand-panel {
-  position: relative;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  padding: 4rem;
-  color: #f7fffb;
+  position: absolute;
+  z-index: 0;
+  inset: 0;
   background:
-    radial-gradient(circle at 20% 18%, rgb(102 195 165 / 24%), transparent 26%),
-    linear-gradient(145deg, #103d36 0%, #0b5a4e 52%, #087167 100%);
+    linear-gradient(145deg, rgb(4 31 27 / 52%), rgb(8 58 49 / 32%)),
+    url('/images/login-options/option-2-forest-spring.png') center / cover no-repeat;
 }
 
 .brand-content {
-  position: relative;
-  z-index: 2;
-  width: min(560px, 100%);
-  margin-bottom: 8rem;
+  display: none;
 }
 
 .brand-mark {
@@ -102,10 +98,7 @@ h1 {
 }
 
 .landscape {
-  position: absolute;
-  inset: auto 0 0;
-  height: 38%;
-  opacity: 0.62;
+  display: none;
 }
 
 .hill {
@@ -141,31 +134,47 @@ h1 {
 }
 
 .form-panel {
+  position: relative;
+  z-index: 1;
   display: grid;
+  min-height: 100dvh;
   place-items: center;
-  padding: 3rem;
+  padding: 1.5rem;
 }
 
 .login-card {
-  width: min(440px, 100%);
+  box-sizing: border-box;
+  width: min(420px, 100%);
+  padding: clamp(1.75rem, 3vw, 2.25rem);
+  border: 1px solid rgb(255 255 255 / 58%);
+  border-radius: 28px;
+  background: rgb(244 250 247 / 55%);
+  box-shadow: 0 28px 80px rgb(2 27 23 / 38%);
+  backdrop-filter: blur(8px) saturate(108%);
+  -webkit-backdrop-filter: blur(8px) saturate(108%);
 }
 
 .mobile-brand {
-  display: none;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  color: #164f44;
+  font-size: 1.25rem;
 }
 
 h2 {
   margin: 0;
   color: #172b27;
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 2.65rem;
+  font-size: clamp(2.1rem, 4vw, 2.4rem);
   font-weight: 550;
   letter-spacing: -0.04em;
 }
 
 .intro {
-  margin: 0.75rem 0 2rem;
-  color: #667772;
+  margin: 0.6rem 0 1.4rem;
+  color: #344e47;
   line-height: 1.55;
 }
 
@@ -180,13 +189,25 @@ mat-form-field {
 
 .password-toggle {
   margin-right: 0.5rem;
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  place-items: center;
   border: 0;
+  border-radius: 50%;
   color: #276f60;
-  font: inherit;
-  font-size: 0.78rem;
-  font-weight: 700;
   background: transparent;
   cursor: pointer;
+
+  &:hover {
+    background: rgb(39 111 96 / 10%);
+  }
+
+  &:focus-visible {
+    outline: 2px solid #276f60;
+    outline-offset: 2px;
+  }
 }
 
 .submit-button {
@@ -226,38 +247,34 @@ mat-form-field {
 
 .support-copy,
 .version {
-  color: #7d8985;
+  color: #344e47;
   font-size: 0.78rem;
   text-align: center;
 }
 
 .support-copy {
-  margin-top: 2rem;
+  margin-top: 1.4rem;
 }
 
 .version {
-  margin-top: 3.25rem;
-  color: #a1aaa7;
+  margin-top: 1.75rem;
+  color: #496159;
 }
 
 @media (max-width: 900px) {
-  .login-shell {
-    grid-template-columns: 1fr;
-  }
-
   .brand-panel {
-    display: none;
+    display: block;
   }
 
   .form-panel {
-    padding: 2rem 1.25rem;
+    padding: 1.25rem;
   }
 
   .mobile-brand {
     display: flex;
     gap: 0.75rem;
     align-items: center;
-    margin-bottom: 3.5rem;
+    margin-bottom: 2rem;
     color: #164f44;
     font-size: 1.25rem;
   }
@@ -265,5 +282,14 @@ mat-form-field {
   .mini-drop {
     width: 15px;
     height: 21px;
+  }
+
+  .login-card {
+    padding: 1.5rem 1.25rem;
+    border-radius: 22px;
+  }
+
+  .version {
+    margin-top: 2rem;
   }
 }

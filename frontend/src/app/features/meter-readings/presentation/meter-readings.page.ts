@@ -8,6 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActionIconComponent } from '../../../shared/components/action-icon/action-icon.component';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
+import { NotificationComponent } from '../../../shared/components/notification/notification.component';
 import { DateFieldComponent } from '../../../shared/components/date-field/date-field.component';
 import { ListFilterField, ListFiltersComponent } from '../../../shared/components/list-filters/list-filters.component';
 import { AuthSessionService } from '../../auth/application/auth-session.service';
@@ -17,7 +18,7 @@ import { MeterReading } from '../domain/meter-reading.models';
 @Component({
   selector: 'app-meter-readings-page',
   imports: [
-    ActionIconComponent, ModalComponent, DateFieldComponent, DatePipe, DecimalPipe, ListFiltersComponent,
+    ActionIconComponent, ModalComponent, NotificationComponent, DateFieldComponent, DatePipe, DecimalPipe, ListFiltersComponent,
     MatButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule,
     MatTooltipModule, ReactiveFormsModule,
   ],
@@ -43,8 +44,8 @@ export class MeterReadingsPage implements OnInit {
     },
   ]);
   readonly form = new FormGroup({
-    billingPeriodId: new FormControl('', { nonNullable: true, validators: Validators.required }),
-    meterId: new FormControl('', { nonNullable: true, validators: Validators.required }),
+    billingPeriodId: new FormControl<number | null>(null, { validators: Validators.required }),
+    meterId: new FormControl<number | null>(null, { validators: Validators.required }),
     readingValue: new FormControl<number | null>(null, [Validators.required, Validators.min(0)]),
     readingDate: new FormControl('', { nonNullable: true, validators: Validators.required }),
     notes: new FormControl('', { nonNullable: true }),
@@ -57,7 +58,7 @@ export class MeterReadingsPage implements OnInit {
 
   openCreate(): void {
     this.selected.set(null);
-    this.form.reset({ billingPeriodId: '', meterId: '', readingValue: null, readingDate: '', notes: '' });
+    this.form.reset({ billingPeriodId: null, meterId: null, readingValue: null, readingDate: '', notes: '' });
     this.facade.clearFeedback();
     this.formOpen.set(true);
   }
@@ -84,8 +85,8 @@ export class MeterReadingsPage implements OnInit {
     const value = this.form.getRawValue();
     if (value.readingValue === null) return;
     this.facade.save({
-      billingPeriodId: value.billingPeriodId,
-      meterId: value.meterId,
+      billingPeriodId: value.billingPeriodId!,
+      meterId: value.meterId!,
       readingValue: value.readingValue,
       readingDate: value.readingDate,
       ...(value.notes.trim() && { notes: value.notes.trim() }),

@@ -1,17 +1,21 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
   IsBoolean,
+  IsInt,
   IsOptional,
   IsString,
-  IsUUID,
+  Min,
   MinLength,
 } from 'class-validator';
 import { PaginationQueryDto } from '../../../common/dto/pagination-query.dto';
 
 export class CreatePropertyDto {
   @ApiProperty()
-  @IsUUID()
-  customerId!: string;
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  customerId!: number;
 
   @ApiProperty({ example: 'PRED-001' })
   @IsString()
@@ -34,8 +38,10 @@ export class CreatePropertyDto {
 export class UpdatePropertyDto {
   @ApiPropertyOptional()
   @IsOptional()
-  @IsUUID()
-  customerId?: string;
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  customerId?: number;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -67,7 +73,9 @@ export class UpdatePropertyDto {
 export class PropertyQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional()
   @IsOptional()
-  @IsUUID()
-  customerId?: string;
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  customerId?: number;
 
 }

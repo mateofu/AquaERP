@@ -27,11 +27,11 @@ export class PropertiesApiService {
     return this.http.post<Property>(this.baseUrl, input);
   }
 
-  update(id: string, input: PropertyInput): Observable<Property> {
+  update(id: number, input: PropertyInput): Observable<Property> {
     return this.http.patch<Property>(`${this.baseUrl}/${id}`, input);
   }
 
-  deactivate(id: string): Observable<Property> {
+  deactivate(id: number): Observable<Property> {
     return this.http.delete<Property>(`${this.baseUrl}/${id}`);
   }
 }

@@ -8,7 +8,7 @@ import { CreatePaymentDto } from './dto/payment.dto';
 export class PaymentsService {
   constructor(private readonly prisma: PrismaService, private readonly audit: AuditService) {}
 
-  async findAll(page: number, limit: number, search?: string, invoiceId?: string) {
+  async findAll(page: number, limit: number, search?: string, invoiceId?: number) {
     const term = search?.trim();
     const where: Prisma.PaymentWhereInput = {
       invoiceId,
@@ -38,7 +38,7 @@ export class PaymentsService {
     }).filter((invoice) => invoice.balance.gt(0));
   }
 
-  async create(dto: CreatePaymentDto, userId: string, ipAddress?: string) {
+  async create(dto: CreatePaymentDto, userId: number, ipAddress?: string) {
     try {
       return await this.prisma.$transaction(async (tx) => {
         const invoice = await tx.invoice.findUnique({ where: { id: dto.invoiceId }, include: { payments: { select: { amount: true } } } });

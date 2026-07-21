@@ -29,15 +29,15 @@ export class BillingPeriodsApiService {
     return this.http.post<BillingPeriod>(this.baseUrl, input);
   }
 
-  update(id: string, input: BillingPeriodInput): Observable<BillingPeriod> {
+  update(id: number, input: BillingPeriodInput): Observable<BillingPeriod> {
     return this.http.patch<BillingPeriod>(`${this.baseUrl}/${id}`, input);
   }
 
-  open(id: string): Observable<BillingPeriod> {
+  open(id: number): Observable<BillingPeriod> {
     return this.http.post<BillingPeriod>(`${this.baseUrl}/${id}/open`, {});
   }
 
-  close(id: string): Observable<BillingPeriod> {
+  close(id: number): Observable<BillingPeriod> {
     return this.http.post<BillingPeriod>(`${this.baseUrl}/${id}/close`, {});
   }
 }

@@ -1,3 +1,14 @@
+@if (mode() === 'year') {
+<mat-form-field appearance="outline">
+  <mat-label>{{ label() }}</mat-label>
+  <input matInput readonly inputmode="numeric" [required]="required()" [disabled]="disabled()" [value]="yearText()" (blur)="touch()" (click)="picker.open()" />
+  <mat-datepicker-toggle matIconSuffix [for]="picker" />
+  @if (hint()) { <mat-hint>{{ hint() }}</mat-hint> }
+  @if (required() && touched() && !value()) { <mat-error>Selecciona un año.</mat-error> }
+</mat-form-field>
+<input class="picker-anchor" tabindex="-1" aria-hidden="true" [matDatepicker]="picker" [min]="dateLimit(min())" [max]="dateLimit(max())" [value]="value()" />
+<mat-datepicker #picker startView="multi-year" panelClass="aqua-date-picker" (yearSelected)="selectYear($event); picker.close()" (closed)="touch()" />
+} @else {
 <mat-form-field appearance="outline">
   <mat-label>{{ label() }}</mat-label>
   <input
@@ -26,3 +37,4 @@
     <mat-error>Selecciona una fecha.</mat-error>
   }
 </mat-form-field>
+}

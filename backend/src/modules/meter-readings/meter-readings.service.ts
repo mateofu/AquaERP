@@ -33,8 +33,8 @@ export class MeterReadingsService {
     page: number;
     limit: number;
     search?: string;
-    billingPeriodId?: string;
-    meterId?: string;
+    billingPeriodId?: number;
+    meterId?: number;
     hasAnomaly?: boolean;
   }) {
     const { page, limit, ...filters } = params;
@@ -49,7 +49,7 @@ export class MeterReadingsService {
     return { data, total };
   }
 
-  async findOne(id: string) {
+  async findOne(id: number) {
     const reading = await this.repository.findById(id);
     if (!reading) throw new NotFoundException('Lectura no encontrada');
     return reading;
@@ -57,7 +57,7 @@ export class MeterReadingsService {
 
   async create(
     dto: CreateMeterReadingDto,
-    actorId: string,
+    actorId: number,
     ipAddress?: string,
   ) {
     const period = await this.requireOpenPeriod(dto.billingPeriodId);
@@ -110,9 +110,9 @@ export class MeterReadingsService {
   }
 
   async update(
-    id: string,
+    id: number,
     dto: UpdateMeterReadingDto,
-    actorId: string,
+    actorId: number,
     ipAddress?: string,
   ) {
     const current = await this.findOne(id);
@@ -181,10 +181,10 @@ export class MeterReadingsService {
   }
 
   private async calculate(
-    meterId: string,
+    meterId: number,
     period: BillingPeriod,
     readingValue: number,
-    excludeId?: string,
+    excludeId?: number,
   ) {
     const previous = await this.repository.findLatestBefore(
       meterId,
@@ -216,7 +216,7 @@ export class MeterReadingsService {
     };
   }
 
-  private async requireOpenPeriod(id: string): Promise<BillingPeriod> {
+  private async requireOpenPeriod(id: number): Promise<BillingPeriod> {
     const period = await this.periodsRepository.findById(id);
     if (!period) throw new NotFoundException('Periodo no encontrado');
     if (period.status !== BillingPeriodStatus.OPEN) {
@@ -227,7 +227,7 @@ export class MeterReadingsService {
     return period;
   }
 
-  private async requireActiveMeter(id: string): Promise<void> {
+  private async requireActiveMeter(id: number): Promise<void> {
     const meter = await this.prisma.meter.findUnique({ where: { id } });
     if (!meter || !meter.isActive) {
       throw new NotFoundException('Medidor no encontrado');

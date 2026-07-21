@@ -8,6 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActionIconComponent } from '../../../shared/components/action-icon/action-icon.component';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
+import { NotificationComponent } from '../../../shared/components/notification/notification.component';
 import {
   ListFilterField,
   ListFiltersComponent,
@@ -21,6 +22,7 @@ import { BillingPeriod } from '../domain/billing-period.models';
   imports: [
     ActionIconComponent,
     ModalComponent,
+    NotificationComponent,
     DatePipe,
     ListFiltersComponent,
     MatButtonModule,
@@ -50,7 +52,7 @@ export class BillingPeriodsPage implements OnInit {
       type: 'select',
       options: this.facade.statuses(),
     },
-    { key: 'year', label: 'Año', type: 'text' },
+    { key: 'year', label: 'Año', type: 'year' },
   ]);
   readonly form = new FormGroup({
     year: new FormControl(new Date().getFullYear(), {

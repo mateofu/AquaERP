@@ -1,0 +1,11 @@
+<div
+  #element
+  popover="manual"
+  class="notification"
+  [class.success]="kind() === 'success'"
+  [class.error]="kind() === 'error'"
+  [attr.role]="kind() === 'error' ? 'alert' : 'status'"
+>
+  <span class="icon" aria-hidden="true">{{ kind() === 'success' ? '✓' : '!' }}</span>
+  <span>{{ message() }}</span>
+</div>

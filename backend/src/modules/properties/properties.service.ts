@@ -26,7 +26,7 @@ export class PropertiesService {
     page: number,
     limit: number,
     search?: string,
-    customerId?: string,
+    customerId?: number,
   ) {
     const skip = (page - 1) * limit;
     const [data, total] = await Promise.all([
@@ -37,7 +37,7 @@ export class PropertiesService {
     return { data, total };
   }
 
-  async findOne(id: string) {
+  async findOne(id: number) {
     const property = await this.propertiesRepository.findById(id);
 
     if (!property) {
@@ -49,7 +49,7 @@ export class PropertiesService {
 
   async create(
     dto: CreatePropertyDto,
-    actorId: string,
+    actorId: number,
     ipAddress?: string,
   ) {
     const customer = await this.customersRepository.findById(dto.customerId);
@@ -93,9 +93,9 @@ export class PropertiesService {
   }
 
   async update(
-    id: string,
+    id: number,
     dto: UpdatePropertyDto,
-    actorId: string,
+    actorId: number,
     ipAddress?: string,
   ) {
     const current = await this.propertiesRepository.findById(id);
@@ -152,7 +152,7 @@ export class PropertiesService {
     });
   }
 
-  async deactivate(id: string, actorId: string, ipAddress?: string) {
+  async deactivate(id: number, actorId: number, ipAddress?: string) {
     const current = await this.propertiesRepository.findById(id);
 
     if (!current) {

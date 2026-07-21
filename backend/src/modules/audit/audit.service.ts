@@ -3,10 +3,10 @@ import { AuditAction, AuditEntity, Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 
 export interface AuditLogInput {
-  userId?: string;
+  userId?: number;
   action: AuditAction;
   entity: AuditEntity;
-  entityId: string;
+  entityId: number;
   changes?: unknown;
   ipAddress?: string;
 }

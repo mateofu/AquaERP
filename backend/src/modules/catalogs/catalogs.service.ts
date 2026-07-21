@@ -7,7 +7,7 @@ import {
 import { PrismaService } from '../../prisma/prisma.service';
 
 export interface CatalogOption {
-  value: string;
+  value: string | number;
   label: string;
   description?: string;
   metadata?: Record<string, string | number | boolean | null>;

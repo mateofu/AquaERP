@@ -24,7 +24,7 @@ export class BillingPeriodsRepository {
     return this.prisma.billingPeriod.count({ where: { status, year } });
   }
 
-  findById(id: string): Promise<BillingPeriod | null> {
+  findById(id: number): Promise<BillingPeriod | null> {
     return this.prisma.billingPeriod.findUnique({ where: { id } });
   }
 
@@ -48,7 +48,7 @@ export class BillingPeriodsRepository {
   }
 
   update(
-    id: string,
+    id: number,
     data: Prisma.BillingPeriodUpdateInput,
     client: Prisma.TransactionClient | PrismaService = this.prisma,
   ): Promise<BillingPeriod> {

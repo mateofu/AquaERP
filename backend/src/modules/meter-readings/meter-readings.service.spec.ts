@@ -21,7 +21,7 @@ describe('MeterReadingsService', () => {
   const period = (
     status: BillingPeriodStatus = BillingPeriodStatus.OPEN,
   ): BillingPeriod => ({
-    id: 'period-1',
+    id: 1,
     year: 2026,
     month: 7,
     status,
@@ -31,8 +31,8 @@ describe('MeterReadingsService', () => {
     updatedAt: new Date(),
   });
   const meter: Meter = {
-    id: 'meter-1',
-    propertyId: 'property-1',
+    id: 1,
+    propertyId: 1,
     serialNumber: 'M-001',
     brand: null,
     installationDate: null,
@@ -81,7 +81,7 @@ describe('MeterReadingsService', () => {
     repository.findLatestBefore.mockResolvedValue(null);
     repository.create.mockImplementation((data) =>
       Promise.resolve({
-        id: 'reading-1',
+        id: 1,
         meterId: meter.id,
         billingPeriodId: period().id,
         readingValue: data.readingValue as Prisma.Decimal,
@@ -98,11 +98,11 @@ describe('MeterReadingsService', () => {
           serialNumber: meter.serialNumber,
           brand: null,
           property: {
-            id: 'property-1',
+            id: 1,
             code: 'P-001',
             address: 'Vereda',
             customer: {
-              id: 'customer-1',
+              id: 1,
               documentNumber: '1',
               firstName: 'Ana',
               lastName: 'Rural',
@@ -120,7 +120,7 @@ describe('MeterReadingsService', () => {
         readingValue: 125,
         readingDate: '2026-07-20',
       },
-      'user-1',
+      1,
     );
 
     expect(result.previousValue.toNumber()).toBe(0);
@@ -141,7 +141,7 @@ describe('MeterReadingsService', () => {
           readingValue: 125,
           readingDate: '2026-07-20',
         },
-        'user-1',
+        1,
       ),
     ).rejects.toBeInstanceOf(UnprocessableEntityException);
   });
@@ -150,9 +150,9 @@ describe('MeterReadingsService', () => {
     periodsRepository.findById.mockResolvedValue(period());
     repository.findByMeterPeriod.mockResolvedValue(null);
     repository.findLatestBefore.mockResolvedValue({
-      id: 'previous',
+      id: 2,
       meterId: meter.id,
-      billingPeriodId: 'period-0',
+      billingPeriodId: 2,
       readingValue: new Prisma.Decimal(150),
       previousValue: new Prisma.Decimal(100),
       consumption: new Prisma.Decimal(50),
@@ -172,7 +172,7 @@ describe('MeterReadingsService', () => {
           readingValue: 140,
           readingDate: '2026-07-20',
         },
-        'user-1',
+        1,
       ),
     ).rejects.toBeInstanceOf(UnprocessableEntityException);
   });

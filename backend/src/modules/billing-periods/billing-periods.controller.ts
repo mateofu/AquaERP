@@ -52,7 +52,7 @@ export class BillingPeriodsController {
   @Get(':id')
   @Roles(...READ_ROLES)
   @ApiOperation({ summary: 'Obtiene un periodo mensual' })
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: number) {
     return this.service.findOne(id);
   }
 
@@ -71,7 +71,7 @@ export class BillingPeriodsController {
   @Roles(...WRITE_ROLES)
   @ApiOperation({ summary: 'Modifica un periodo en borrador' })
   update(
-    @Param('id') id: string,
+    @Param('id') id: number,
     @Body() dto: UpdateBillingPeriodDto,
     @CurrentUser() user: AuthUser,
     @Req() request: Request,
@@ -83,7 +83,7 @@ export class BillingPeriodsController {
   @Roles(...WRITE_ROLES)
   @ApiOperation({ summary: 'Abre un periodo mensual' })
   open(
-    @Param('id') id: string,
+    @Param('id') id: number,
     @CurrentUser() user: AuthUser,
     @Req() request: Request,
   ) {
@@ -94,7 +94,7 @@ export class BillingPeriodsController {
   @Roles(...WRITE_ROLES)
   @ApiOperation({ summary: 'Cierra un periodo mensual' })
   close(
-    @Param('id') id: string,
+    @Param('id') id: number,
     @CurrentUser() user: AuthUser,
     @Req() request: Request,
   ) {

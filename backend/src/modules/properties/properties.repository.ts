@@ -25,7 +25,7 @@ export class PropertiesRepository {
     skip: number;
     take: number;
     search?: string;
-    customerId?: string;
+    customerId?: number;
   }): Promise<PropertyWithCustomer[]> {
     return this.prisma.property.findMany({
       where: this.buildFilter(params.search, params.customerId),
@@ -36,13 +36,13 @@ export class PropertiesRepository {
     });
   }
 
-  count(search?: string, customerId?: string): Promise<number> {
+  count(search?: string, customerId?: number): Promise<number> {
     return this.prisma.property.count({
       where: this.buildFilter(search, customerId),
     });
   }
 
-  findById(id: string): Promise<PropertyWithCustomer | null> {
+  findById(id: number): Promise<PropertyWithCustomer | null> {
     return this.prisma.property.findUnique({
       where: { id },
       include: propertyWithCustomerInclude,
@@ -64,7 +64,7 @@ export class PropertiesRepository {
   }
 
   update(
-    id: string,
+    id: number,
     data: Prisma.PropertyUpdateInput,
     client: Prisma.TransactionClient | PrismaService = this.prisma,
   ): Promise<PropertyWithCustomer> {
@@ -77,7 +77,7 @@ export class PropertiesRepository {
 
   private buildFilter(
     search?: string,
-    customerId?: string,
+    customerId?: number,
   ): Prisma.PropertyWhereInput {
     const filters: Prisma.PropertyWhereInput[] = [{ isActive: true }];
 

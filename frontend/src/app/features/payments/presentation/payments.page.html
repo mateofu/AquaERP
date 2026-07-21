@@ -1,8 +1,8 @@
 <header class="page-header">
   <div><h1>Pagos y cartera</h1><p>Recaudo, abonos y seguimiento de saldos pendientes.</p></div>
 </header>
-@if (facade.notice()) { <div class="feedback success" role="status">{{ facade.notice() }}</div> }
-@if (facade.error()) { <div class="feedback error" role="alert">{{ facade.error() }}</div> }
+@if (facade.notice(); as message) { <app-notification kind="success" [message]="message" /> }
+@if (facade.error(); as message) { <app-notification kind="error" [message]="message" /> }
 
 <section class="metrics">
   <article><span>Cartera pendiente</span><strong>{{ facade.totalReceivable() | currency:'COP':'symbol-narrow':'1.0-2' }}</strong></article>

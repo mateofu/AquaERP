@@ -7,6 +7,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActionIconComponent } from '../../../shared/components/action-icon/action-icon.component';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
+import { NotificationComponent } from '../../../shared/components/notification/notification.component';
 import { ListFiltersComponent } from '../../../shared/components/list-filters/list-filters.component';
 import { ListFilterField } from '../../../shared/components/list-filters/list-filters.component';
 import { AuthSessionService } from '../../auth/application/auth-session.service';
@@ -23,6 +24,7 @@ import {
   imports: [
     ActionIconComponent,
     ModalComponent,
+    NotificationComponent,
     ListFiltersComponent,
     MatButtonModule,
     MatFormFieldModule,

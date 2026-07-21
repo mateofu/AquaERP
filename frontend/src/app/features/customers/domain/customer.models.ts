@@ -1,7 +1,7 @@
 export type DocumentType = 'CC' | 'NIT' | 'CE' | 'TI' | 'PASSPORT';
 
 export interface Customer {
-  id: string;
+  id: number;
   documentType: DocumentType;
   documentNumber: string;
   firstName: string;

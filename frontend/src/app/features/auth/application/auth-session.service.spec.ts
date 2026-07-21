@@ -39,7 +39,7 @@ describe('AuthSessionService', () => {
   it('creates an authenticated session', () => {
     service.create({
       user: {
-        id: 'user-1',
+        id: 1,
         email: 'admin@aquaerp.local',
         firstName: 'Administrador',
         lastName: 'Sistema',
@@ -58,7 +58,7 @@ describe('AuthSessionService', () => {
   it('replaces rotated tokens and clears the session', () => {
     service.create({
       user: {
-        id: 'user-1',
+        id: 1,
         email: 'admin@aquaerp.local',
         firstName: 'Administrador',
         lastName: 'Sistema',

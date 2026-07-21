@@ -6,6 +6,8 @@ export type ActionIcon =
   | 'previous'
   | 'next'
   | 'open'
+  | 'visibility'
+  | 'visibility-off'
   | 'close';
 
 @Component({
@@ -26,6 +28,13 @@ export type ActionIcon =
         <path d="M7 10V7a5 5 0 0 1 9.6-2" />
         <rect x="5" y="10" width="14" height="10" rx="2" />
         <path d="M12 14v2" />
+      } @else if (name() === 'visibility') {
+        <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
+        <circle cx="12" cy="12" r="2.5" />
+      } @else if (name() === 'visibility-off') {
+        <path d="m3 3 18 18" />
+        <path d="M10.6 6.2A10 10 0 0 1 12 6c6 0 9.5 6 9.5 6a16 16 0 0 1-2.1 2.8" />
+        <path d="M6.5 6.5C3.8 8.3 2.5 12 2.5 12s3.5 6 9.5 6a10 10 0 0 0 4-.8" />
       } @else {
         <rect x="5" y="10" width="14" height="10" rx="2" />
         <path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v2" />

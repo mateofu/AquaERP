@@ -52,7 +52,7 @@ export class UsersController {
   @Get(':id')
   @Roles(RoleName.ADMIN)
   @ApiOperation({ summary: 'Obtiene un usuario por ID' })
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: number) {
     return this.usersService.findOne(id);
   }
 
@@ -71,7 +71,7 @@ export class UsersController {
   @Roles(RoleName.ADMIN)
   @ApiOperation({ summary: 'Actualiza un usuario' })
   update(
-    @Param('id') id: string,
+    @Param('id') id: number,
     @Body() dto: UpdateUserDto,
     @CurrentUser() user: AuthUser,
     @Req() request: Request,
@@ -83,7 +83,7 @@ export class UsersController {
   @Roles(RoleName.ADMIN)
   @ApiOperation({ summary: 'Desactiva un usuario' })
   deactivate(
-    @Param('id') id: string,
+    @Param('id') id: number,
     @CurrentUser() user: AuthUser,
     @Req() request: Request,
   ) {

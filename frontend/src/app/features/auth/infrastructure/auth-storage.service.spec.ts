@@ -15,7 +15,7 @@ describe('AuthStorageService', () => {
 
   it('persists and restores a session', () => {
     const user: AuthUser = {
-      id: 'user-1',
+      id: 1,
       email: 'admin@aquaerp.local',
       firstName: 'Administrador',
       lastName: 'Sistema',

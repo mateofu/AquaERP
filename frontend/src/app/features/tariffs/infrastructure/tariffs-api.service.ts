@@ -27,15 +27,15 @@ export class TariffsApiService {
     return this.http.post<Tariff>(this.baseUrl, input);
   }
 
-  update(id: string, input: TariffInput): Observable<Tariff> {
+  update(id: number, input: TariffInput): Observable<Tariff> {
     return this.http.patch<Tariff>(`${this.baseUrl}/${id}`, input);
   }
 
-  activate(id: string): Observable<Tariff> {
+  activate(id: number): Observable<Tariff> {
     return this.http.post<Tariff>(`${this.baseUrl}/${id}/activate`, {});
   }
 
-  retire(id: string): Observable<Tariff> {
+  retire(id: number): Observable<Tariff> {
     return this.http.post<Tariff>(`${this.baseUrl}/${id}/retire`, {});
   }
 }

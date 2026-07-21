@@ -7,6 +7,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActionIconComponent } from '../../../shared/components/action-icon/action-icon.component';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
+import { NotificationComponent } from '../../../shared/components/notification/notification.component';
 import { ListFiltersComponent } from '../../../shared/components/list-filters/list-filters.component';
 import { ListFilterField } from '../../../shared/components/list-filters/list-filters.component';
 import { AuthSessionService } from '../../auth/application/auth-session.service';
@@ -18,6 +19,7 @@ import { Property, PropertyInput } from '../domain/property.models';
   imports: [
     ActionIconComponent,
     ModalComponent,
+    NotificationComponent,
     ListFiltersComponent,
     MatButtonModule,
     MatFormFieldModule,
@@ -53,7 +55,7 @@ export class PropertiesPage implements OnInit {
     { key: 'vereda', label: 'Vereda', type: 'text' },
   ]);
   readonly form = new FormGroup({
-    customerId: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    customerId: new FormControl<number | null>(null, { validators: [Validators.required] }),
     code: new FormControl('', {
       nonNullable: true,
       validators: [Validators.required, Validators.minLength(2)],
@@ -102,7 +104,7 @@ export class PropertiesPage implements OnInit {
     }
     const raw = this.form.getRawValue();
     const input: PropertyInput = {
-      customerId: raw.customerId,
+      customerId: raw.customerId!,
       code: raw.code.trim(),
       address: raw.address.trim(),
       municipality: raw.municipality.trim(),

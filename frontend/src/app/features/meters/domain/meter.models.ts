@@ -1,9 +1,9 @@
 export interface MeterProperty {
-  id: string;
+  id: number;
   code: string;
   address: string;
   customer: {
-    id: string;
+    id: number;
     documentNumber: string;
     firstName: string;
     lastName: string;
@@ -11,8 +11,8 @@ export interface MeterProperty {
 }
 
 export interface Meter {
-  id: string;
-  propertyId: string;
+  id: number;
+  propertyId: number;
   serialNumber: string;
   brand: string | null;
   installationDate: string | null;
@@ -23,7 +23,7 @@ export interface Meter {
 }
 
 export interface MeterInput {
-  propertyId: string;
+  propertyId: number;
   serialNumber: string;
   brand?: string;
   installationDate?: string;

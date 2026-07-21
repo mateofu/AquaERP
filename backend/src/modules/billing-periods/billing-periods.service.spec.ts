@@ -22,7 +22,7 @@ describe('BillingPeriodsService', () => {
   const period = (
     status: BillingPeriodStatus = BillingPeriodStatus.DRAFT,
   ): BillingPeriod => ({
-    id: 'period-1',
+    id: 1,
     year: 2026,
     month: 7,
     status,
@@ -64,7 +64,7 @@ describe('BillingPeriodsService', () => {
 
     const result = await service.create(
       { year: 2026, month: 7 },
-      'user-1',
+      1,
       '127.0.0.1',
     );
 
@@ -80,7 +80,7 @@ describe('BillingPeriodsService', () => {
     repository.findByYearMonth.mockResolvedValue(period());
 
     await expect(
-      service.create({ year: 2026, month: 7 }, 'user-1'),
+      service.create({ year: 2026, month: 7 }, 1),
     ).rejects.toBeInstanceOf(ConflictException);
   });
 
@@ -95,11 +95,11 @@ describe('BillingPeriodsService', () => {
       }),
     );
 
-    const result = await service.open('period-1', 'user-1');
+    const result = await service.open(1, 1);
 
     expect(result.status).toBe(BillingPeriodStatus.OPEN);
     expect(repository.update).toHaveBeenCalledWith(
-      'period-1',
+      1,
       expect.objectContaining({ status: BillingPeriodStatus.OPEN }),
       expect.anything(),
     );
@@ -109,10 +109,10 @@ describe('BillingPeriodsService', () => {
     repository.findById.mockResolvedValue(period());
     repository.findOpen.mockResolvedValue({
       ...period(BillingPeriodStatus.OPEN),
-      id: 'period-2',
+      id: 2,
     });
 
-    await expect(service.open('period-1', 'user-1')).rejects.toBeInstanceOf(
+    await expect(service.open(1, 1)).rejects.toBeInstanceOf(
       ConflictException,
     );
   });
@@ -120,7 +120,7 @@ describe('BillingPeriodsService', () => {
   it('only closes an open period', async () => {
     repository.findById.mockResolvedValue(period());
 
-    await expect(service.close('period-1', 'user-1')).rejects.toBeInstanceOf(
+    await expect(service.close(1, 1)).rejects.toBeInstanceOf(
       UnprocessableEntityException,
     );
   });
@@ -128,7 +128,7 @@ describe('BillingPeriodsService', () => {
   it('returns not found for an unknown period', async () => {
     repository.findById.mockResolvedValue(null);
 
-    await expect(service.findOne('missing')).rejects.toBeInstanceOf(
+    await expect(service.findOne(999)).rejects.toBeInstanceOf(
       NotFoundException,
     );
   });

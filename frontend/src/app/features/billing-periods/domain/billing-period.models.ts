@@ -1,7 +1,7 @@
 export type BillingPeriodStatus = 'DRAFT' | 'OPEN' | 'CLOSED';
 
 export interface BillingPeriod {
-  id: string;
+  id: number;
   year: number;
   month: number;
   status: BillingPeriodStatus;
