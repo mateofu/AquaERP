@@ -278,6 +278,15 @@ nav {
   font-weight: 800;
 }
 
+.avatar svg {
+  width: 23px;
+  height: 23px;
+  stroke: currentcolor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .profile-copy {
   display: grid;
   min-width: 120px;
@@ -306,8 +315,7 @@ nav {
   margin-right: 0.75rem;
 }
 
-@media (max-width: 600px) {
-  .environment,
+@media (max-width: 900px) {
   .profile-copy {
     display: none;
   }
@@ -319,5 +327,18 @@ nav {
   .content {
     min-height: calc(100dvh - 64px);
     padding: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .environment {
+    max-width: 125px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .content {
+    padding: .8rem;
   }
 }

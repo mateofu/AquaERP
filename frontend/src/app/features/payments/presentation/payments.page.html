@@ -1,0 +1,34 @@
+<header class="page-header">
+  <div><h1>Pagos y cartera</h1><p>Recaudo, abonos y seguimiento de saldos pendientes.</p></div>
+</header>
+@if (facade.notice()) { <div class="feedback success" role="status">{{ facade.notice() }}</div> }
+@if (facade.error()) { <div class="feedback error" role="alert">{{ facade.error() }}</div> }
+
+<section class="metrics">
+  <article><span>Cartera pendiente</span><strong>{{ facade.totalReceivable() | currency:'COP':'symbol-narrow':'1.0-2' }}</strong></article>
+  <article><span>Facturas con saldo</span><strong>{{ facade.portfolio().length }}</strong></article>
+  <article><span>Facturas vencidas</span><strong>{{ facade.overdueCount() }}</strong></article>
+</section>
+
+<section class="panel">
+  <header><div><h2>Cartera por cobrar</h2><p>Facturas emitidas con saldo pendiente.</p></div></header>
+  @if (!facade.portfolio().length) { <div class="empty">No hay saldos pendientes.</div> }
+  @else { <div class="table-wrap"><table><thead><tr><th>Factura</th><th>Suscriptor</th><th>Periodo</th><th>Vencimiento</th><th>Total</th><th>Abonado</th><th>Saldo</th><th>Acción</th></tr></thead><tbody>
+    @for (invoice of facade.portfolio(); track invoice.id) { <tr [class.overdue]="invoice.status === 'OVERDUE'"><td><strong>FAC-{{ invoice.sequence.toString().padStart(6,'0') }}</strong><small>{{ invoice.meterSerial }}</small></td><td><strong>{{ invoice.customerName }}</strong><small>{{ invoice.customerDocument }} · {{ invoice.propertyCode }}</small></td><td>{{ invoice.billingPeriod.month }}/{{ invoice.billingPeriod.year }}</td><td>{{ invoice.dueDate | date:'dd/MM/yyyy':'UTC' }}</td><td>{{ +invoice.total | currency:'COP':'symbol-narrow':'1.0-2' }}</td><td>{{ +invoice.paid | currency:'COP':'symbol-narrow':'1.0-2' }}</td><td><strong>{{ +invoice.balance | currency:'COP':'symbol-narrow':'1.0-2' }}</strong></td><td>@if (canRegister()) { <button mat-flat-button (click)="open(invoice)">Registrar pago</button> }</td></tr> }
+  </tbody></table></div> }
+</section>
+
+<section class="panel history">
+  <header><div><h2>Historial de recaudos</h2><p>Últimos pagos registrados.</p></div><mat-form-field appearance="outline"><mat-label>Buscar pago</mat-label><input #search matInput placeholder="Cliente, documento o referencia" (keyup.enter)="facade.applySearch(search.value)" /></mat-form-field></header>
+  @if (!facade.payments().length) { <div class="empty">No hay pagos registrados.</div> }
+  @else { <div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Factura</th><th>Suscriptor</th><th>Medio</th><th>Referencia</th><th>Valor</th><th>Registrado por</th></tr></thead><tbody>
+    @for (payment of facade.payments(); track payment.id) { <tr><td>{{ payment.paymentDate | date:'dd/MM/yyyy':'UTC' }}</td><td>FAC-{{ payment.invoice.sequence.toString().padStart(6,'0') }}</td><td>{{ payment.invoice.customerName }}</td><td>{{ methodsMap[payment.method] }}</td><td>{{ payment.reference || '—' }}</td><td><strong>{{ +payment.amount | currency:'COP':'symbol-narrow':'1.0-2' }}</strong></td><td>{{ payment.recordedBy.firstName }} {{ payment.recordedBy.lastName }}</td></tr> }
+  </tbody></table></div> }
+</section>
+
+@if (formOpen() && selected(); as invoice) {
+  <app-modal label="Registrar pago" (closed)="close()"><section class="dialog"><header><div><p class="eyebrow">RECAUDO</p><h2>Registrar pago</h2><small>FAC-{{ invoice.sequence.toString().padStart(6,'0') }} · {{ invoice.customerName }}</small></div><button mat-icon-button class="modal-close" type="button" aria-label="Cerrar modal" (click)="close()"><span aria-hidden="true">×</span></button></header>
+    <div class="balance"><span>Saldo pendiente</span><strong>{{ +invoice.balance | currency:'COP':'symbol-narrow':'1.0-2' }}</strong></div>
+    <form [formGroup]="form" (ngSubmit)="submit()"><mat-form-field appearance="outline"><mat-label>Valor recibido</mat-label><span matTextPrefix>$&nbsp;</span><input matInput type="number" min="0.01" step="0.01" formControlName="amount" /><mat-error>Ingresa un valor válido.</mat-error></mat-form-field><app-date-field label="Fecha del pago" [required]="true" formControlName="paymentDate"/><mat-form-field appearance="outline"><mat-label>Medio de pago</mat-label><mat-select formControlName="method">@for (method of methods; track method[0]) { <mat-option [value]="method[0]">{{ method[1] }}</mat-option> }</mat-select></mat-form-field><mat-form-field appearance="outline"><mat-label>Referencia</mat-label><input matInput formControlName="reference" /></mat-form-field><mat-form-field appearance="outline" class="full"><mat-label>Observaciones</mat-label><textarea matInput rows="3" formControlName="notes"></textarea></mat-form-field><footer><button mat-flat-button type="submit" [disabled]="facade.saving()">{{ facade.saving() ? 'Registrando…' : 'Registrar pago' }}</button><button mat-button type="button" (click)="close()">Cancelar</button></footer></form>
+  </section></app-modal>
+}

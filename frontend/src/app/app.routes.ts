@@ -77,6 +77,10 @@ export const routes: Routes = [
         path: 'invoices', title: 'Facturación | AquaERP',
         loadComponent: () => import('./features/invoices/presentation/invoices.page').then((component) => component.InvoicesPage),
       },
+      {
+        path: 'payments', title: 'Pagos y cartera | AquaERP',
+        loadComponent: () => import('./features/payments/presentation/payments.page').then((component) => component.PaymentsPage),
+      },
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
     ],
   },

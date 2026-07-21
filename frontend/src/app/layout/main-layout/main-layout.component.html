@@ -4,7 +4,7 @@
     [class.collapsed]="sidebarCollapsed() && !isCompact()"
     [mode]="isCompact() ? 'over' : 'side'"
     [opened]="isCompact() ? sidebarOpen() : true"
-    (openedChange)="sidebarOpen.set($event)"
+    (openedChange)="syncSidebarState($event)"
   >
     <a class="brand" routerLink="/dashboard" (click)="closeOnCompact()">
       <span class="brand-symbol" aria-hidden="true">
@@ -80,7 +80,12 @@
       </span>
       <span class="toolbar-spacer"></span>
       <button class="profile-button" [matMenuTriggerFor]="profileMenu">
-        <span class="avatar">{{ initials() }}</span>
+        <span class="avatar" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="8" r="3.5" />
+            <path d="M5.5 20c.4-4.2 2.6-6.3 6.5-6.3s6.1 2.1 6.5 6.3" />
+          </svg>
+        </span>
         <span class="profile-copy">
           <strong>{{ session.displayName() }}</strong>
           <small>{{ session.user()?.roles?.[0] ?? 'Usuario' }}</small>

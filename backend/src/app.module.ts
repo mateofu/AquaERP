@@ -16,6 +16,7 @@ import { PropertiesModule } from './modules/properties/properties.module';
 import { RolesModule } from './modules/roles/roles.module';
 import { TariffsModule } from './modules/tariffs/tariffs.module';
 import { InvoicesModule } from './modules/invoices/invoices.module';
+import { PaymentsModule } from './modules/payments/payments.module';
 import { UsersModule } from './modules/users/users.module';
 import { PrismaModule } from './prisma/prisma.module';
 
@@ -46,6 +47,7 @@ import { PrismaModule } from './prisma/prisma.module';
     MetersModule,
     TariffsModule,
     InvoicesModule,
+    PaymentsModule,
     HealthModule,
   ],
   providers: [
