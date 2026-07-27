@@ -141,6 +141,9 @@ input {
   --excel-export-color: #217346;
   --excel-export-hover: #185c37;
   --excel-export-text: #ffffff;
+  --batch-manage-color: #2f63bd;
+  --batch-manage-hover: #244f9c;
+  --batch-manage-text: #ffffff;
 }
 
 .excel-export-button {
@@ -169,6 +172,90 @@ input {
   content: '';
 }
 
+.batch-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: .75rem;
+}
+
+.batch-manage-button {
+  border-color: var(--batch-manage-color) !important;
+  color: var(--batch-manage-text) !important;
+  background: var(--batch-manage-color) !important;
+}
+
+.batch-manage-button:hover {
+  border-color: var(--batch-manage-hover) !important;
+  background: var(--batch-manage-hover) !important;
+}
+
+.batch-manage-button .mdc-button__label {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.batch-loading {
+  min-width: min(560px, calc(100vw - 2rem));
+  padding: 3rem;
+  border-radius: 16px;
+  color: #64736f;
+  background: #ffffff;
+  text-align: center;
+}
+
+/* Estándar compartido para acciones de tabla y paginación. */
+.pagination {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: flex-end;
+  padding: .85rem 1rem;
+  color: #71807b;
+  font-size: .75rem;
+}
+
+.actions button[mat-icon-button],
+.pagination button[mat-icon-button] {
+  width: 48px;
+  height: 48px;
+  padding: 15px;
+}
+
+.actions button[mat-icon-button] app-action-icon,
+.pagination button[mat-icon-button] app-action-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.actions button[mat-icon-button] {
+  border: 0;
+  color: #286f60;
+  background: transparent;
+}
+
+.actions button[mat-icon-button] + button[mat-icon-button] {
+  margin-left: .2rem;
+}
+
+.actions button[mat-icon-button].danger {
+  color: #a33b32 !important;
+}
+
+.pagination button[mat-icon-button] {
+  border: 1px solid #d6e1dd;
+  color: #286f60;
+  background: #f7fbf9;
+}
+
+.pagination button[mat-icon-button]:disabled {
+  border-color: #e5e9e7;
+  color: #aeb8b4;
+  background: #fafbfa;
+}
+
 @media (max-width: 520px) {
   .export-heading {
     align-items: stretch;
@@ -177,5 +264,9 @@ input {
 
   .export-heading button {
     align-self: flex-start;
+  }
+
+  .batch-actions {
+    justify-content: flex-start;
   }
 }

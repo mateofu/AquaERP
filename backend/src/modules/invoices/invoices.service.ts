@@ -11,6 +11,47 @@ export class InvoicesService {
     const [data,total]=await Promise.all([this.prisma.invoice.findMany({where,skip:(page-1)*limit,take:limit,include:{items:true,billingPeriod:true},orderBy:{sequence:'desc'}}),this.prisma.invoice.count({where})]); return {data,total};
   }
   async findOne(id:number){const value=await this.prisma.invoice.findUnique({where:{id},include:{items:true,billingPeriod:true,tariff:true}});if(!value)throw new NotFoundException('Factura no encontrada');return value;}
+  async batchSummary(billingPeriodId:number){
+    const period=await this.prisma.billingPeriod.findUnique({where:{id:billingPeriodId}});
+    if(!period)throw new NotFoundException('Periodo no encontrado');
+    const where:Prisma.InvoiceWhereInput={billingPeriodId};
+    const [aggregate,statuses,sample]=await Promise.all([
+      this.prisma.invoice.aggregate({where,_count:{_all:true},_sum:{total:true,consumption:true}}),
+      this.prisma.invoice.groupBy({by:['status'],where,_count:{_all:true}}),
+      this.prisma.invoice.findMany({where,orderBy:{sequence:'asc'},take:10,select:{id:true,sequence:true,customerName:true,customerDocument:true,propertyCode:true,meterSerial:true,total:true,status:true}}),
+    ]);
+    const statusMap=Object.fromEntries(statuses.map(value=>[value.status,value._count._all])) as Partial<Record<InvoiceStatus,number>>;
+    const deliverableCount=(statusMap.ISSUED??0)+(statusMap.PAID??0)+(statusMap.OVERDUE??0);
+    return{
+      billingPeriod:{id:period.id,year:period.year,month:period.month,status:period.status},
+      total:aggregate._count._all,
+      totalAmount:aggregate._sum.total??new Prisma.Decimal(0),
+      totalConsumption:aggregate._sum.consumption??new Prisma.Decimal(0),
+      statuses:statusMap,
+      sample,
+      printPartSize:200,
+      printParts:Math.ceil(deliverableCount/200),
+    };
+  }
+  async findBatchDocuments(billingPeriodId:number,skip=0,take?:number,deliverable=false){
+    return this.prisma.invoice.findMany({
+      where:{billingPeriodId,status:deliverable?{in:[InvoiceStatus.ISSUED,InvoiceStatus.PAID,InvoiceStatus.OVERDUE]}:undefined},
+      skip,
+      take,
+      include:{items:true,billingPeriod:true,tariff:true},
+      orderBy:{sequence:'asc'},
+    });
+  }
+  async issueBatch(billingPeriodId:number,userId:number,ipAddress?:string){
+    const drafts=await this.prisma.invoice.findMany({where:{billingPeriodId,status:InvoiceStatus.DRAFT},select:{id:true}});
+    if(!drafts.length)throw new UnprocessableEntityException('No hay facturas en borrador para emitir en este periodo');
+    const issuedAt=new Date();
+    await this.prisma.$transaction(async tx=>{
+      await tx.invoice.updateMany({where:{id:{in:drafts.map(value=>value.id)},status:InvoiceStatus.DRAFT},data:{status:InvoiceStatus.ISSUED,issuedAt}});
+      await tx.auditLog.createMany({data:drafts.map(value=>({userId,action:AuditAction.UPDATE,entity:AuditEntity.INVOICE,entityId:value.id,changes:{beforeStatus:InvoiceStatus.DRAFT,afterStatus:InvoiceStatus.ISSUED,billingPeriodId},ipAddress}))});
+    });
+    return{billingPeriodId,issuedCount:drafts.length,issuedAt};
+  }
   async eligibleReadings(billingPeriodId:number){const period=await this.prisma.billingPeriod.findUnique({where:{id:billingPeriodId}});if(!period)throw new NotFoundException('Periodo no encontrado');return this.prisma.meterReading.findMany({where:{billingPeriodId,invoice:null},orderBy:{meter:{serialNumber:'asc'}},select:{id:true,consumption:true,meter:{select:{serialNumber:true,property:{select:{code:true,address:true,customer:{select:{firstName:true,lastName:true}}}}}}}})}
   generate(dto:GenerateInvoiceDto,userId:number,ipAddress?:string){return this.createFromReading(dto.meterReadingId,dto.issueDate,dto.dueDate,userId,ipAddress);}
   async generateBatch(dto:GenerateInvoiceBatchDto,userId:number,ipAddress?:string){

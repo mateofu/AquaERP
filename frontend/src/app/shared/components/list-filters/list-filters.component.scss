@@ -53,6 +53,20 @@ footer {
   align-items: center;
 }
 
+.clear-filters-button {
+  color: #fff !important;
+  background: #287765 !important;
+}
+
+.clear-filters-button:hover {
+  background: #1f6254 !important;
+}
+
+.clear-filters-button:disabled {
+  color: #71807b !important;
+  background: #e5ebe8 !important;
+}
+
 @media (max-width: 700px) {
   .actions {
     flex-wrap: wrap;

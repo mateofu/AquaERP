@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnprocessableEntityException } from '@nestjs/common';
 import { InvoiceStatus } from '@prisma/client';
+import JSZip = require('jszip');
 import PDFDocument = require('pdfkit');
 import { InvoicesService } from './invoices.service';
 
@@ -16,27 +17,96 @@ export class InvoicePdfService {
   constructor(private readonly invoices: InvoicesService) {}
 
   async generate(id: number): Promise<Buffer> {
-    const invoice = await this.invoices.findOne(id);
-    const document = new PDFDocument({
+    return this.generateInvoice(await this.invoices.findOne(id));
+  }
+
+  async generateBatch(
+    billingPeriodId: number,
+    part: number,
+    size: number,
+  ): Promise<{ file: Buffer; count: number }> {
+    const values = await this.invoices.findBatchDocuments(
+      billingPeriodId,
+      (part - 1) * size,
+      size,
+      true,
+    );
+    if (!values.length) {
+      throw new UnprocessableEntityException(
+        'No hay facturas emitidas en esta parte del lote',
+      );
+    }
+    const document = this.createDocument(`Facturación masiva · parte ${part}`);
+    const completed = this.collect(document);
+    values.forEach((invoice, index) => {
+      if (index > 0) document.addPage();
+      this.render(document, invoice);
+    });
+    document.end();
+    return { file: await completed, count: values.length };
+  }
+
+  async generateZip(billingPeriodId: number): Promise<{ file: Buffer; count: number }> {
+    const values = await this.invoices.findBatchDocuments(
+      billingPeriodId,
+      0,
+      undefined,
+      true,
+    );
+    if (!values.length) {
+      throw new UnprocessableEntityException(
+        'No hay facturas emitidas para descargar en este periodo',
+      );
+    }
+    const zip = new JSZip();
+    for (const invoice of values) {
+      zip.file(
+        `${this.invoiceNumber(invoice.sequence)}.pdf`,
+        await this.generateInvoice(invoice),
+      );
+    }
+    return {
+      file: await zip.generateAsync({
+        type: 'nodebuffer',
+        compression: 'DEFLATE',
+        compressionOptions: { level: 6 },
+      }),
+      count: values.length,
+    };
+  }
+
+  private async generateInvoice(
+    invoice: Awaited<ReturnType<InvoicesService['findOne']>>,
+  ): Promise<Buffer> {
+    const document = this.createDocument(
+      `Factura ${this.invoiceNumber(invoice.sequence)}`,
+    );
+    const completed = this.collect(document);
+    this.render(document, invoice);
+    document.end();
+    return completed;
+  }
+
+  private createDocument(title: string): PDFKit.PDFDocument {
+    return new PDFDocument({
       size: 'A4',
       margin: 48,
       info: {
-        Title: `Factura ${this.invoiceNumber(invoice.sequence)}`,
+        Title: title,
         Author: 'AquaERP Rural',
         Subject: 'Factura de servicio de acueducto',
       },
     });
+  }
+
+  private collect(document: PDFKit.PDFDocument): Promise<Buffer> {
     const chunks: Buffer[] = [];
     document.on('data', (chunk: Buffer) => chunks.push(chunk));
 
-    const completed = new Promise<Buffer>((resolve, reject) => {
+    return new Promise<Buffer>((resolve, reject) => {
       document.on('end', () => resolve(Buffer.concat(chunks)));
       document.on('error', reject);
     });
-
-    this.render(document, invoice);
-    document.end();
-    return completed;
   }
 
   private render(

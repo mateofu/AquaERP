@@ -5,5 +5,16 @@ export interface InvoicePage { data:Invoice[]; meta:{total:number;page:number;li
 export interface GenerateInvoiceInput { meterReadingId:number; issueDate?:string; dueDate?:string; }
 export interface GenerateBatchInput { billingPeriodId:number; issueDate?:string; dueDate?:string; }
 export interface BatchResult { total:number; generatedCount:number; errorCount:number; invoiceIds:number[]; errors:{meterReadingId:number;message:string}[]; }
+export interface InvoiceBatchSummary {
+  billingPeriod:{id:number;year:number;month:number;status:string};
+  total:number;
+  totalAmount:string;
+  totalConsumption:string;
+  statuses:Partial<Record<InvoiceStatus,number>>;
+  sample:{id:number;sequence:number;customerName:string;customerDocument:string;propertyCode:string;meterSerial:string;total:string;status:InvoiceStatus}[];
+  printPartSize:number;
+  printParts:number;
+}
+export interface IssueBatchResult { billingPeriodId:number;issuedCount:number;issuedAt:string; }
 export interface EligibleReading { id:number; consumption:string; meter:{serialNumber:string;property:{code:string;address:string;customer:{firstName:string;lastName:string}}}; }
 export const INVOICE_STATUS_LABELS:Record<InvoiceStatus,string>={DRAFT:'Borrador',ISSUED:'Emitida',PAID:'Pagada',OVERDUE:'Vencida',VOID:'Anulada'};
