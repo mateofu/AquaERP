@@ -46,7 +46,8 @@
     <div class="actions">
       <button mat-flat-button type="button" (click)="search()">Buscar</button>
       <button
-        mat-stroked-button
+        mat-flat-button
+        class="clear-filters-button"
         type="button"
         [disabled]="!hasFilters()"
         (click)="clear()"

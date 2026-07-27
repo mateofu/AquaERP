@@ -9,7 +9,7 @@ services:
       - "${POSTGRES_PORT:-5432}:5432"
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-aquaerp}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aquaerp}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in backend/.env}
       POSTGRES_DB: ${POSTGRES_DB:-aquaerp}
     volumes:
       - postgres_data:/var/lib/postgresql/data

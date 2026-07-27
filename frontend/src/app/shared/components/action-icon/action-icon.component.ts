@@ -5,6 +5,7 @@ export type ActionIcon =
   | 'deactivate'
   | 'activate'
   | 'download'
+  | 'batch'
   | 'previous'
   | 'next'
   | 'open'
@@ -14,6 +15,10 @@ export type ActionIcon =
 
 @Component({
   selector: 'app-action-icon',
+  host: {
+    '[style.width.px]': 'size()',
+    '[style.height.px]': 'size()',
+  },
   template: `
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
       @if (name() === 'edit') {
@@ -28,6 +33,10 @@ export type ActionIcon =
       } @else if (name() === 'download') {
         <path d="M12 3v12" />
         <path d="m7.5 11 4.5 4.5 4.5-4.5M5 20h14" />
+      } @else if (name() === 'batch') {
+        <path d="M8 3h8l3 3v13a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" />
+        <path d="M16 3v4h3M9 11h7M9 15h7" />
+        <path d="M4 7H3a1 1 0 0 0-1 1v12a2 2 0 0 0 2 2h10" />
       } @else if (name() === 'previous') {
         <path d="m14.5 5-7 7 7 7" />
       } @else if (name() === 'next') {
@@ -58,8 +67,10 @@ export type ActionIcon =
 
     svg {
       display: block;
-      width: 100%;
-      height: 100%;
+      width: 100% !important;
+      height: 100% !important;
+      max-width: 100%;
+      max-height: 100%;
       stroke: currentColor;
       stroke-width: 1.8;
       stroke-linecap: round;
@@ -69,4 +80,5 @@ export type ActionIcon =
 })
 export class ActionIconComponent {
   readonly name = input.required<ActionIcon>();
+  readonly size = input(18);
 }

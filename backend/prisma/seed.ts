@@ -2,6 +2,8 @@ import { PrismaClient, RoleName } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
+const unsafeProductionPassword =
+  /change[-_ ]?me|replace[-_ ]?with|example|admin123|^aquaerp$|^password$/i;
 
 const ROLES: Array<{ name: RoleName; description: string }> = [
   { name: RoleName.ADMIN, description: 'Configuración, usuarios, tarifas, reportes y auditoría' },
@@ -27,7 +29,8 @@ async function main(): Promise<void> {
     process.env.NODE_ENV === 'production' &&
     (!process.env.SEED_ADMIN_EMAIL ||
       !process.env.SEED_ADMIN_PASSWORD ||
-      adminPassword === 'Admin123!')
+      adminPassword.length < 12 ||
+      unsafeProductionPassword.test(adminPassword))
   ) {
     throw new Error(
       'En producción debe configurar credenciales seguras para el administrador inicial',

@@ -11,7 +11,7 @@ API REST para AquaERP Rural — NestJS + PostgreSQL + Prisma.
 ## Inicio rápido
 
 ```bash
-# 1. Variables de entorno
+# 1. Variables de entorno (reemplaza todos los valores `replace-with-*`)
 cp .env.example .env
 
 # 2. Base de datos
@@ -29,12 +29,28 @@ npm run prisma:seed
 npm run start:dev
 ```
 
-## Credenciales iniciales (seed)
+## Variables y secretos
 
-| Campo | Valor por defecto |
-|-------|-------------------|
-| Email | `admin@aquaerp.local` |
-| Password | `Admin123!` |
+- `.env` es solo para desarrollo local y está excluido de Git.
+- En producción, configura los secretos en el servidor, Docker o la plataforma
+  de despliegue; no copies el `.env` al repositorio ni a la imagen.
+- Genera valores únicos para `JWT_ACCESS_SECRET`, `POSTGRES_PASSWORD`,
+  `DATABASE_URL` y `SEED_ADMIN_PASSWORD`.
+- `SEED_ADMIN_PASSWORD` debe tener al menos 12 caracteres en producción.
+- `CORS_ORIGIN` debe contener únicamente los dominios HTTPS autorizados,
+  separados por comas.
+- El backend no inicia en producción si detecta secretos de ejemplo,
+  contraseñas predeterminadas, CORS abierto o direcciones locales.
+
+Ejemplo para generar un secreto JWT:
+
+```bash
+openssl rand -base64 48
+```
+
+Las credenciales iniciales del administrador se toman de
+`SEED_ADMIN_EMAIL` y `SEED_ADMIN_PASSWORD`; no tienen valores seguros por
+defecto para producción.
 
 ## Endpoints
 

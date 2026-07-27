@@ -1,0 +1,90 @@
+<section class="batch-preview">
+  <header>
+    <div>
+      <p class="eyebrow">CIERRE DE FACTURACIÓN</p>
+      <h2>
+        Lote {{ summary().billingPeriod.month.toString().padStart(2, '0') }}/{{ summary().billingPeriod.year }}
+      </h2>
+      <p>Revisa el resumen antes de emitir y preparar los recibos.</p>
+    </div>
+    <button mat-icon-button class="modal-close" type="button"
+      aria-label="Cerrar modal" (click)="closeRequested.emit()">
+      <span aria-hidden="true">×</span>
+    </button>
+  </header>
+
+  <div class="metrics">
+    <article><span>Facturas</span><strong>{{ summary().total }}</strong></article>
+    <article><span>Total facturado</span><strong>{{ +summary().totalAmount | currency:'COP':'symbol-narrow':'1.0-2' }}</strong></article>
+    <article><span>Consumo total</span><strong>{{ +summary().totalConsumption | number:'1.0-3' }} m³</strong></article>
+    <article><span>En borrador</span><strong>{{ draftCount() }}</strong></article>
+  </div>
+
+  @if (draftCount() > 0) {
+    <div class="notice">
+      Las facturas siguen en borrador. Puedes revisar las muestras antes de emitir el lote.
+    </div>
+  }
+
+  <div class="sample">
+    <div class="sample-heading">
+      <div>
+        <h3>Vista previa del lote</h3>
+        <p>Se muestran las primeras {{ summary().sample.length }} facturas.</p>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Factura</th><th>Suscriptor</th><th>Predio</th><th>Total</th><th>Estado</th><th>Vista previa</th></tr>
+        </thead>
+        <tbody>
+          @for (invoice of summary().sample; track invoice.id) {
+            <tr>
+              <td>FAC-{{ invoice.sequence.toString().padStart(6, '0') }}</td>
+              <td><strong>{{ invoice.customerName }}</strong><small>{{ invoice.customerDocument }}</small></td>
+              <td><strong>{{ invoice.propertyCode }}</strong><small>{{ invoice.meterSerial }}</small></td>
+              <td>{{ +invoice.total | currency:'COP':'symbol-narrow':'1.0-2' }}</td>
+              <td><span class="status" [class]="invoice.status.toLowerCase()">{{ status(invoice.status) }}</span></td>
+              <td>
+                <button mat-flat-button class="preview-button" type="button"
+                  (click)="previewInvoice.emit({ id: invoice.id, sequence: invoice.sequence })">
+                  Ver PDF
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  @if (deliverableCount() > 0) {
+    <section class="print-parts">
+      <h3>Impresión por bloques</h3>
+      <p>Cada archivo contiene hasta {{ summary().printPartSize }} facturas.</p>
+      <div>
+        @for (part of parts(); track part) {
+          <button mat-flat-button class="print-button" type="button" [disabled]="busy()"
+            (click)="printPart.emit(part)">
+            Imprimir parte {{ part }}
+          </button>
+        }
+      </div>
+    </section>
+  }
+
+  <footer>
+    @if (deliverableCount() > 0) {
+      <button mat-flat-button class="batch-download" type="button"
+        [disabled]="busy()" (click)="downloadZip.emit()">
+        Descargar ZIP
+      </button>
+    }
+    @if (draftCount() > 0 && canIssue()) {
+      <button mat-flat-button type="button" [disabled]="busy()" (click)="issue.emit()">
+        Emitir lote
+      </button>
+    }
+  </footer>
+</section>

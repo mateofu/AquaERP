@@ -25,9 +25,15 @@
       <h2>Facturas generadas</h2>
       <p>Control de consumos, valores y estados de cobro.</p>
     </div>
-    <button mat-stroked-button class="excel-export-button" type="button" (click)="exportExcel()">
-      Exportar Excel
-    </button>
+    <div class="batch-actions">
+      <button mat-stroked-button class="batch-manage-button" type="button" (click)="openBatch()">
+        <app-action-icon name="batch" />
+        Gestionar lote
+      </button>
+      <button mat-stroked-button class="excel-export-button" type="button" (click)="exportExcel()">
+        Exportar Excel
+      </button>
+    </div>
   </header>
 
   @if (facade.loading()) {
@@ -46,7 +52,7 @@
             <th>Vencimiento</th>
             <th>Total</th>
             <th>Estado</th>
-            <th>Acciones</th>
+            <th class="actions-heading">Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -70,23 +76,27 @@
                 </span>
               </td>
               <td class="actions">
-                <button mat-icon-button matTooltip="Ver detalle" aria-label="Ver detalle"
+                <button mat-icon-button type="button"
+                  matTooltip="Ver detalle" matTooltipPosition="above" aria-label="Ver detalle"
                   (click)="facade.detail(invoice.id)">
-                  <app-action-icon name="open" />
+                  <app-action-icon name="visibility" />
                 </button>
-                <button mat-icon-button matTooltip="Descargar factura PDF"
+                <button mat-icon-button type="button"
+                  matTooltip="Descargar factura PDF" matTooltipPosition="above"
                   aria-label="Descargar factura PDF" (click)="facade.downloadPdf(invoice)">
                   <app-action-icon name="download" />
                 </button>
                 @if (canWrite() && invoice.status === 'DRAFT') {
-                  <button mat-icon-button matTooltip="Emitir" aria-label="Emitir factura"
+                  <button mat-icon-button type="button"
+                    matTooltip="Emitir" matTooltipPosition="above" aria-label="Emitir factura"
                     (click)="issue(invoice)">
                     <app-action-icon name="next" />
                   </button>
                 }
                 @if (canVoid() && invoice.status !== 'PAID' && invoice.status !== 'VOID') {
-                  <button mat-icon-button class="danger" matTooltip="Anular"
-                    aria-label="Anular factura" (click)="void(invoice)">
+                  <button mat-icon-button class="danger" type="button"
+                    matTooltip="Anular" matTooltipPosition="above" aria-label="Anular factura"
+                    (click)="void(invoice)">
                     <app-action-icon name="deactivate" />
                   </button>
                 }
@@ -97,11 +107,17 @@
       </table>
     </div>
     <footer class="pagination">
-      <button mat-icon-button [disabled]="!facade.hasPrevious()" (click)="facade.previous()">
+      <button mat-icon-button type="button"
+        aria-label="Ir a la página anterior" matTooltip="Página anterior"
+        matTooltipPosition="above" [disabled]="!facade.hasPrevious()"
+        (click)="facade.previous()">
         <app-action-icon name="previous" />
       </button>
       <span>Página {{ facade.page() }} de {{ facade.totalPages() }}</span>
-      <button mat-icon-button [disabled]="!facade.hasNext()" (click)="facade.next()">
+      <button mat-icon-button type="button"
+        aria-label="Ir a la página siguiente" matTooltip="Página siguiente"
+        matTooltipPosition="above" [disabled]="!facade.hasNext()"
+        (click)="facade.next()">
         <app-action-icon name="next" />
       </button>
     </footer>
@@ -218,5 +234,24 @@
         <strong>{{ +invoice.total | currency:'COP':'symbol-narrow':'1.0-2' }}</strong>
       </footer>
     </section>
+  </app-modal>
+}
+
+@if (batchOpen()) {
+  <app-modal label="Gestión del lote de facturación" (closed)="closeBatch()">
+    @if (facade.batchSummary(); as summary) {
+      <app-invoice-batch-preview
+        [summary]="summary"
+        [busy]="facade.saving()"
+        [canIssue]="canWrite()"
+        (closeRequested)="closeBatch()"
+        (issue)="issueBatch()"
+        (printPart)="printBatch($event)"
+        (downloadZip)="downloadBatchZip()"
+        (previewInvoice)="facade.previewPdf($event.id, $event.sequence)"
+      />
+    } @else {
+      <div class="batch-loading">Cargando resumen del lote…</div>
+    }
   </app-modal>
 }
