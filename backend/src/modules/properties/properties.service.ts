@@ -27,11 +27,24 @@ export class PropertiesService {
     limit: number,
     search?: string,
     customerId?: number,
+    municipality?: string,
+    vereda?: string,
   ) {
     const skip = (page - 1) * limit;
     const [data, total] = await Promise.all([
-      this.propertiesRepository.findMany({ skip, take: limit, search, customerId }),
-      this.propertiesRepository.count(search, customerId),
+      this.propertiesRepository.findMany({
+        skip,
+        take: limit,
+        search,
+        customerId,
+        municipality,
+        vereda,
+      }),
+      this.propertiesRepository.count(search, {
+        customerId,
+        municipality,
+        vereda,
+      }),
     ]);
 
     return { data, total };

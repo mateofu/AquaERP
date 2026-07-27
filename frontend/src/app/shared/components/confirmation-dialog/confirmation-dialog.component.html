@@ -1,0 +1,45 @@
+@if (dialog.request(); as request) {
+  <app-modal
+    [label]="request.title"
+    [closeOnBackdrop]="false"
+    (closed)="cancel()"
+  >
+    <section class="confirmation" role="alertdialog" aria-modal="true">
+      <div class="symbol" [class.danger]="request.danger" aria-hidden="true">
+        <svg viewBox="0 0 24 24" focusable="false">
+          <path d="M12 3.5 2.8 20h18.4L12 3.5Z" />
+          <path class="mark" d="M12 9v5.2M12 17.3v.2" />
+        </svg>
+      </div>
+      <div class="content">
+        <h2>{{ request.title }}</h2>
+        <p>{{ request.message }}</p>
+        @if (request.inputLabel) {
+          <label>
+            <span>{{ request.inputLabel }}</span>
+            <textarea
+              rows="3"
+              [placeholder]="request.inputPlaceholder ?? ''"
+              [value]="inputValue()"
+              (input)="inputValue.set($any($event.target).value)"
+            ></textarea>
+          </label>
+        }
+      </div>
+      <footer>
+        <button
+          type="button"
+          class="confirm"
+          [class.danger]="request.danger"
+          [disabled]="request.inputLabel && !inputValue().trim()"
+          (click)="accept()"
+        >
+          {{ request.confirmLabel ?? 'Confirmar' }}
+        </button>
+        <button type="button" class="cancel" (click)="cancel()">
+          {{ request.cancelLabel ?? 'Cancelar' }}
+        </button>
+      </footer>
+    </section>
+  </app-modal>
+}

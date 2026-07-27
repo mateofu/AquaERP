@@ -3,6 +3,7 @@ import { Component, input } from '@angular/core';
 export type ActionIcon =
   | 'edit'
   | 'deactivate'
+  | 'activate'
   | 'previous'
   | 'next'
   | 'open'
@@ -20,6 +21,9 @@ export type ActionIcon =
       } @else if (name() === 'deactivate') {
         <circle cx="12" cy="12" r="9" />
         <path d="m8.8 8.8 6.4 6.4" />
+      } @else if (name() === 'activate') {
+        <circle cx="12" cy="12" r="9" />
+        <path d="m8 12 2.7 2.7L16.5 9" />
       } @else if (name() === 'previous') {
         <path d="m14.5 5-7 7 7 7" />
       } @else if (name() === 'next') {

@@ -78,4 +78,13 @@ export class PropertyQueryDto extends PaginationQueryDto {
   @Min(1)
   customerId?: number;
 
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  municipality?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  vereda?: string;
 }

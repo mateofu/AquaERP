@@ -29,10 +29,10 @@
   @if (facade.loading()) {
     <div class="empty-state">Cargando suscriptores…</div>
   } @else if (facade.customers().length === 0) {
-    <div class="empty-state">
-      <strong>No hay suscriptores para mostrar</strong>
-      <span>Crea el primero o cambia el criterio de búsqueda.</span>
-    </div>
+    <app-empty-state
+      title="No hay suscriptores para mostrar"
+      message="Crea el primero o cambia el criterio de búsqueda."
+    />
   } @else {
     <div class="table-wrap">
       <table>
@@ -62,7 +62,9 @@
               </td>
               <td data-label="Suscriptor">
                 <strong>{{ customer.firstName }} {{ customer.lastName }}</strong>
-                <small>Activo</small>
+                <small [class.inactive]="!customer.isActive">
+                  {{ customer.isActive ? 'Activo' : 'Inactivo' }}
+                </small>
               </td>
               <td data-label="Documento">
                 {{ documentLabel(customer.documentType) }}
@@ -80,12 +82,21 @@
                     matTooltipPosition="above" (click)="openEdit(customer)">
                     <app-action-icon name="edit" />
                   </button>
-                  <button mat-icon-button class="action-button danger" type="button"
-                    aria-label="Desactivar suscriptor" matTooltip="Desactivar suscriptor"
-                    matTooltipPosition="above" [disabled]="facade.saving()"
-                    (click)="deactivate(customer)">
-                    <app-action-icon name="deactivate" />
-                  </button>
+                  @if (customer.isActive) {
+                    <button mat-icon-button class="action-button danger" type="button"
+                      aria-label="Desactivar suscriptor" matTooltip="Desactivar suscriptor"
+                      matTooltipPosition="above" [disabled]="facade.saving()"
+                      (click)="deactivate(customer)">
+                      <app-action-icon name="deactivate" />
+                    </button>
+                  } @else {
+                    <button mat-icon-button class="action-button" type="button"
+                      aria-label="Reactivar suscriptor" matTooltip="Reactivar suscriptor"
+                      matTooltipPosition="above" [disabled]="facade.saving()"
+                      (click)="activate(customer)">
+                      <app-action-icon name="activate" />
+                    </button>
+                  }
                 </td>
               }
             </tr>

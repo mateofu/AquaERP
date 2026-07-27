@@ -9,6 +9,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActionIconComponent } from '../../../shared/components/action-icon/action-icon.component';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
 import { NotificationComponent } from '../../../shared/components/notification/notification.component';
+import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { ConfirmationDialogService } from '../../../shared/components/confirmation-dialog/confirmation-dialog.service';
+import { UnsavedChangesService } from '../../../shared/services/unsaved-changes.service';
+import { NumericInputDirective } from '../../../shared/directives/numeric-input.directive';
 import {
   ListFilterField,
   ListFiltersComponent,
@@ -23,6 +27,7 @@ import { BillingPeriod } from '../domain/billing-period.models';
     ActionIconComponent,
     ModalComponent,
     NotificationComponent,
+    EmptyStateComponent,
     DatePipe,
     ListFiltersComponent,
     MatButtonModule,
@@ -31,6 +36,7 @@ import { BillingPeriod } from '../domain/billing-period.models';
     MatSelectModule,
     MatTooltipModule,
     ReactiveFormsModule,
+    NumericInputDirective,
   ],
   providers: [BillingPeriodsFacade],
   templateUrl: './billing-periods.page.html',
@@ -39,6 +45,8 @@ import { BillingPeriod } from '../domain/billing-period.models';
 export class BillingPeriodsPage implements OnInit {
   readonly facade = inject(BillingPeriodsFacade);
   private readonly session = inject(AuthSessionService);
+  private readonly confirmation = inject(ConfirmationDialogService);
+  private readonly unsavedChanges = inject(UnsavedChangesService);
   readonly selected = signal<BillingPeriod | null>(null);
   readonly formOpen = signal(false);
   readonly canWrite = computed(() => {
@@ -80,20 +88,49 @@ export class BillingPeriodsPage implements OnInit {
     this.formOpen.set(true);
   }
 
-  closeForm(): void {
+  async closeForm(force = false): Promise<void> {
+    if (!force && !(await this.unsavedChanges.canDiscard(this.form))) return;
     this.formOpen.set(false);
     this.selected.set(null);
   }
 
-  submit(): void {
+  async submit(): Promise<void> {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
     const { year, month } = this.form.getRawValue();
     if (month === null) return;
-    this.facade.save({ year, month }, this.selected() ?? undefined);
-    this.closeForm();
+    const period = this.selected();
+    if (period) {
+      const confirmed = await this.confirmation.confirm({
+        title: 'Guardar cambios',
+        message: '¿Deseas actualizar este periodo de facturación?',
+        confirmLabel: 'Sí, actualizar',
+      });
+      if (!confirmed) return;
+    }
+    this.facade.save({ year, month }, period ?? undefined);
+    await this.closeForm(true);
+  }
+
+  async openPeriod(period: BillingPeriod): Promise<void> {
+    const confirmed = await this.confirmation.confirm({
+      title: 'Abrir periodo',
+      message: '¿Deseas abrir este periodo para registrar lecturas y continuar el ciclo?',
+      confirmLabel: 'Sí, abrir',
+    });
+    if (confirmed) this.facade.open(period);
+  }
+
+  async closePeriod(period: BillingPeriod): Promise<void> {
+    const confirmed = await this.confirmation.confirm({
+      title: 'Cerrar periodo',
+      message: '¿Deseas cerrar este periodo? Ya no estará disponible para nuevas operaciones.',
+      confirmLabel: 'Sí, cerrar',
+      danger: true,
+    });
+    if (confirmed) this.facade.close(period);
   }
 
   monthLabel(month: number): string {

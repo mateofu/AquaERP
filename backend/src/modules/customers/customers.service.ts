@@ -6,7 +6,11 @@ import {
 import { AuditAction, AuditEntity } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
-import { CreateCustomerDto, UpdateCustomerDto } from './dto/customer.dto';
+import {
+  CreateCustomerDto,
+  CustomerQueryDto,
+  UpdateCustomerDto,
+} from './dto/customer.dto';
 import { CustomersRepository } from './customers.repository';
 
 @Injectable()
@@ -17,11 +21,16 @@ export class CustomersService {
     private readonly prisma: PrismaService,
   ) {}
 
-  async findAll(page: number, limit: number, search?: string) {
+  async findAll(
+    page: number,
+    limit: number,
+    search?: string,
+    filters: Pick<CustomerQueryDto, 'documentType' | 'isActive' | 'hasEmail'> = {},
+  ) {
     const skip = (page - 1) * limit;
     const [data, total] = await Promise.all([
-      this.customersRepository.findMany({ skip, take: limit, search }),
-      this.customersRepository.count(search),
+      this.customersRepository.findMany({ skip, take: limit, search, ...filters }),
+      this.customersRepository.count(search, filters),
     ]);
 
     return { data, total };
@@ -128,6 +137,36 @@ export class CustomersService {
         {
           userId: actorId,
           action: AuditAction.DELETE,
+          entity: AuditEntity.CUSTOMER,
+          entityId: customer.id,
+          changes: { before: current, after: customer },
+          ipAddress,
+        },
+        tx,
+      );
+
+      return customer;
+    });
+  }
+
+  async activate(id: number, actorId: number, ipAddress?: string) {
+    const current = await this.customersRepository.findById(id);
+
+    if (!current) {
+      throw new NotFoundException('Suscriptor no encontrado');
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      const customer = await this.customersRepository.update(
+        id,
+        { isActive: true },
+        tx,
+      );
+
+      await this.auditService.log(
+        {
+          userId: actorId,
+          action: AuditAction.UPDATE,
           entity: AuditEntity.CUSTOMER,
           entityId: customer.id,
           changes: { before: current, after: customer },

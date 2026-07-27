@@ -62,6 +62,7 @@ td:not(.actions) { overflow-wrap: anywhere; }
 td strong, td small { display: block; }
 td strong { color: #203b34; font-size: .84rem; }
 td small { margin-top: .25rem; color: #82908c; font-size: .68rem; }
+td small.inactive { color: #a53f35; font-weight: 700; }
 .actions-heading, .actions { text-align: center; white-space: nowrap; }
 .action-button { color: #286f60; }
 .action-button + .action-button { margin-left: .2rem; }

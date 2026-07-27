@@ -53,6 +53,8 @@ export class PropertiesController {
       limit,
       query.search,
       query.customerId,
+      query.municipality,
+      query.vereda,
     );
 
     return {

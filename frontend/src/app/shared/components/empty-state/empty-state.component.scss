@@ -1,0 +1,73 @@
+:host {
+  display: block;
+}
+
+.empty {
+  display: flex;
+  min-height: 250px;
+  padding: 2rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.icon {
+  display: grid;
+  width: 104px;
+  height: 104px;
+  margin-bottom: 1.25rem;
+  place-items: center;
+  border-radius: 50%;
+  background: #edf3fc;
+}
+
+svg {
+  width: 64px;
+  height: 64px;
+}
+
+.database-top {
+  fill: #dce8fa;
+  stroke: #2d62bd;
+  stroke-width: 3;
+}
+
+.database-body,
+.database-line {
+  fill: none;
+  stroke: #2d62bd;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3;
+}
+
+.lens,
+.handle {
+  fill: #fff;
+  stroke: #2d62bd;
+  stroke-linecap: round;
+  stroke-width: 4;
+}
+
+.handle {
+  fill: none;
+}
+
+.empty-mark {
+  fill: none;
+  stroke: #2d62bd;
+  stroke-linecap: round;
+  stroke-width: 2.5;
+}
+
+strong {
+  color: #314740;
+  font-size: 1.05rem;
+}
+
+span {
+  margin-top: .45rem;
+  color: #7a8984;
+  font-size: .9rem;
+}

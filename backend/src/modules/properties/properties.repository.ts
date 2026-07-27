@@ -26,9 +26,11 @@ export class PropertiesRepository {
     take: number;
     search?: string;
     customerId?: number;
+    municipality?: string;
+    vereda?: string;
   }): Promise<PropertyWithCustomer[]> {
     return this.prisma.property.findMany({
-      where: this.buildFilter(params.search, params.customerId),
+      where: this.buildFilter(params.search, params),
       skip: params.skip,
       take: params.take,
       orderBy: { createdAt: 'desc' },
@@ -36,9 +38,16 @@ export class PropertiesRepository {
     });
   }
 
-  count(search?: string, customerId?: number): Promise<number> {
+  count(
+    search?: string,
+    filters: {
+      customerId?: number;
+      municipality?: string;
+      vereda?: string;
+    } = {},
+  ): Promise<number> {
     return this.prisma.property.count({
-      where: this.buildFilter(search, customerId),
+      where: this.buildFilter(search, filters),
     });
   }
 
@@ -77,12 +86,34 @@ export class PropertiesRepository {
 
   private buildFilter(
     search?: string,
-    customerId?: number,
+    selected: {
+      customerId?: number;
+      municipality?: string;
+      vereda?: string;
+    } = {},
   ): Prisma.PropertyWhereInput {
     const filters: Prisma.PropertyWhereInput[] = [{ isActive: true }];
 
-    if (customerId) {
-      filters.push({ customerId });
+    if (selected.customerId) {
+      filters.push({ customerId: selected.customerId });
+    }
+
+    if (selected.municipality?.trim()) {
+      filters.push({
+        municipality: {
+          contains: selected.municipality.trim(),
+          mode: 'insensitive',
+        },
+      });
+    }
+
+    if (selected.vereda?.trim()) {
+      filters.push({
+        vereda: {
+          contains: selected.vereda.trim(),
+          mode: 'insensitive',
+        },
+      });
     }
 
     if (search?.trim()) {

@@ -34,4 +34,8 @@ export class CustomersApiService {
   deactivate(id: number): Observable<Customer> {
     return this.http.delete<Customer>(`${this.baseUrl}/${id}`);
   }
+
+  activate(id: number): Observable<Customer> {
+    return this.http.post<Customer>(`${this.baseUrl}/${id}/activate`, {});
+  }
 }

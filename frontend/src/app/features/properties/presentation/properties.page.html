@@ -29,10 +29,10 @@
   @if (facade.loading()) {
     <div class="empty-state">Cargando predios…</div>
   } @else if (facade.properties().length === 0) {
-    <div class="empty-state">
-      <strong>No hay predios para mostrar</strong>
-      <span>Crea el primero o cambia el criterio de búsqueda.</span>
-    </div>
+    <app-empty-state
+      title="No hay predios para mostrar"
+      message="Crea el primero o cambia el criterio de búsqueda."
+    />
   } @else {
     <div class="table-wrap">
       <table>

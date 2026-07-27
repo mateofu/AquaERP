@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { DocumentType } from '@prisma/client';
+import { Transform, TransformFnParams } from 'class-transformer';
 import {
   IsBoolean,
   IsEmail,
@@ -8,6 +9,34 @@ import {
   IsString,
   MinLength,
 } from 'class-validator';
+import { PaginationQueryDto } from '../../../common/dto/pagination-query.dto';
+
+const toBoolean = ({ obj, key, value }: TransformFnParams): unknown => {
+  const source = obj as unknown as Record<string, unknown>;
+  const rawValue = source[key] ?? (value as unknown);
+  if (rawValue === 'true' || rawValue === true) return true;
+  if (rawValue === 'false' || rawValue === false) return false;
+  return rawValue;
+};
+
+export class CustomerQueryDto extends PaginationQueryDto {
+  @ApiPropertyOptional({ enum: DocumentType })
+  @IsOptional()
+  @IsEnum(DocumentType)
+  documentType?: DocumentType;
+
+  @ApiPropertyOptional({ type: Boolean })
+  @IsOptional()
+  @Transform(toBoolean)
+  @IsBoolean()
+  isActive?: boolean;
+
+  @ApiPropertyOptional({ type: Boolean })
+  @IsOptional()
+  @Transform(toBoolean)
+  @IsBoolean()
+  hasEmail?: boolean;
+}
 
 export class CreateCustomerDto {
   @ApiProperty({ enum: DocumentType })

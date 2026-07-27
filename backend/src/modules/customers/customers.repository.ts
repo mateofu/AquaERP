@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Customer, Prisma } from '@prisma/client';
+import { Customer, DocumentType, Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
@@ -10,19 +10,28 @@ export class CustomersRepository {
     skip: number;
     take: number;
     search?: string;
-    includeInactive?: boolean;
+    documentType?: DocumentType;
+    isActive?: boolean;
+    hasEmail?: boolean;
   }): Promise<Customer[]> {
     return this.prisma.customer.findMany({
-      where: this.buildFilter(params.search, params.includeInactive),
+      where: this.buildFilter(params.search, params),
       skip: params.skip,
       take: params.take,
       orderBy: { createdAt: 'desc' },
     });
   }
 
-  count(search?: string, includeInactive?: boolean): Promise<number> {
+  count(
+    search?: string,
+    filters: {
+      documentType?: DocumentType;
+      isActive?: boolean;
+      hasEmail?: boolean;
+    } = {},
+  ): Promise<number> {
     return this.prisma.customer.count({
-      where: this.buildFilter(search, includeInactive),
+      where: this.buildFilter(search, filters),
     });
   }
 
@@ -51,17 +60,29 @@ export class CustomersRepository {
 
   private buildFilter(
     search?: string,
-    includeInactive?: boolean,
+    filters: {
+      documentType?: DocumentType;
+      isActive?: boolean;
+      hasEmail?: boolean;
+    } = {},
   ): Prisma.CustomerWhereInput {
-    const filters: Prisma.CustomerWhereInput[] = [];
+    const conditions: Prisma.CustomerWhereInput[] = [];
 
-    if (!includeInactive) {
-      filters.push({ isActive: true });
+    conditions.push({ isActive: filters.isActive ?? true });
+
+    if (filters.documentType) {
+      conditions.push({ documentType: filters.documentType });
+    }
+
+    if (filters.hasEmail === true) {
+      conditions.push({ email: { not: null } });
+    } else if (filters.hasEmail === false) {
+      conditions.push({ email: null });
     }
 
     if (search?.trim()) {
       const term = search.trim();
-      filters.push({
+      conditions.push({
         OR: [
           { documentNumber: { contains: term, mode: 'insensitive' } },
           { firstName: { contains: term, mode: 'insensitive' } },
@@ -71,6 +92,6 @@ export class CustomersRepository {
       });
     }
 
-    return filters.length > 0 ? { AND: filters } : {};
+    return { AND: conditions };
   }
 }

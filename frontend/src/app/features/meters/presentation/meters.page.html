@@ -29,10 +29,10 @@
   @if (facade.loading()) {
     <div class="empty-state">Cargando medidores…</div>
   } @else if (facade.meters().length === 0) {
-    <div class="empty-state">
-      <strong>No hay medidores para mostrar</strong>
-      <span>Crea el primero o cambia el criterio de búsqueda.</span>
-    </div>
+    <app-empty-state
+      title="No hay medidores para mostrar"
+      message="Crea el primero o cambia el criterio de búsqueda."
+    />
   } @else {
     <div class="table-wrap">
       <table>
