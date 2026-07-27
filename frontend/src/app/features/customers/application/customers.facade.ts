@@ -86,6 +86,20 @@ export class CustomersFacade {
       });
   }
 
+  activate(customer: Customer): void {
+    this.saving.set(true);
+    this.clearFeedback();
+    this.api.activate(customer.id)
+      .pipe(finalize(() => this.saving.set(false)))
+      .subscribe({
+        next: () => {
+          this.notice.set('Suscriptor reactivado correctamente.');
+          this.load();
+        },
+        error: (error: HttpErrorResponse) => this.error.set(this.message(error)),
+      });
+  }
+
   clearFeedback(): void {
     this.error.set(null);
     this.notice.set(null);

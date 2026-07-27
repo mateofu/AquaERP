@@ -1,0 +1,120 @@
+.confirmation {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: min(92vw, 520px);
+  padding: 2rem;
+  border: 1px solid #dbe5e1;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 24px 70px rgb(15 37 31 / 24%);
+  text-align: center;
+}
+
+.symbol {
+  display: grid;
+  width: 72px;
+  height: 72px;
+  place-items: center;
+  border-radius: 50%;
+  background: #edf3fc;
+}
+
+.symbol svg {
+  width: 42px;
+  height: 42px;
+  overflow: visible;
+}
+
+.symbol svg path:first-child {
+  fill: #245ab5;
+}
+
+.symbol svg .mark {
+  fill: none;
+  stroke: #fff;
+  stroke-linecap: round;
+  stroke-width: 2.2;
+}
+
+.symbol.danger {
+  background: #fbecea;
+}
+
+.symbol.danger svg path:first-child {
+  fill: #a53f35;
+}
+
+.content {
+  width: 100%;
+}
+
+h2 {
+  margin: 0 0 .5rem;
+  color: #173b32;
+  font-size: 1.35rem;
+}
+
+p {
+  max-width: 420px;
+  margin: 0 auto;
+  color: #5d6d68;
+  line-height: 1.55;
+}
+
+label {
+  display: grid;
+  gap: .45rem;
+  margin-top: 1rem;
+  color: #324b44;
+  font-weight: 650;
+  text-align: left;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 84px;
+  padding: .8rem;
+  border: 1px solid #78837f;
+  border-radius: 12px;
+  font: inherit;
+}
+
+footer {
+  display: flex;
+  gap: .75rem;
+  justify-content: center;
+  width: 100%;
+  margin-top: .5rem;
+}
+
+button {
+  min-height: 44px;
+  padding: .65rem 1.1rem;
+  border: 1px solid #245ab5;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cancel {
+  color: #245ab5;
+  background: #fff;
+}
+
+.confirm {
+  color: #fff;
+  background: #245ab5;
+}
+
+.confirm.danger {
+  border-color: #a53f35;
+  background: #a53f35;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: .5;
+}

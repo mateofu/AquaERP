@@ -8,9 +8,13 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActionIconComponent } from '../../../shared/components/action-icon/action-icon.component';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
 import { NotificationComponent } from '../../../shared/components/notification/notification.component';
+import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { ConfirmationDialogService } from '../../../shared/components/confirmation-dialog/confirmation-dialog.service';
+import { UnsavedChangesService } from '../../../shared/services/unsaved-changes.service';
 import { ListFiltersComponent } from '../../../shared/components/list-filters/list-filters.component';
 import { ListFilterField } from '../../../shared/components/list-filters/list-filters.component';
 import { AuthSessionService } from '../../auth/application/auth-session.service';
+import { ExcelExportService } from '../../../shared/services/excel-export.service';
 import { CustomersFacade } from '../application/customers.facade';
 import {
   Customer,
@@ -25,6 +29,7 @@ import {
     ActionIconComponent,
     ModalComponent,
     NotificationComponent,
+    EmptyStateComponent,
     ListFiltersComponent,
     MatButtonModule,
     MatFormFieldModule,
@@ -39,13 +44,22 @@ import {
 })
 export class CustomersPage implements OnInit {
   readonly facade = inject(CustomersFacade);
+  private readonly excel = inject(ExcelExportService);
   private readonly session = inject(AuthSessionService);
+  private readonly confirmation = inject(ConfirmationDialogService);
+  private readonly unsavedChanges = inject(UnsavedChangesService);
   readonly selected = signal<Customer | null>(null);
   readonly formOpen = signal(false);
   readonly canWrite = computed(() => {
     const roles = this.session.user()?.roles ?? [];
     return roles.includes('ADMIN') || roles.includes('OPERADOR');
   });
+  exportExcel(): void {
+    this.excel.download('customers', 'suscriptores', {
+      search: this.facade.search(),
+      ...this.facade.filters(),
+    }).subscribe();
+  }
   readonly documentTypes = Object.entries(DOCUMENT_TYPE_LABELS) as [DocumentType, string][];
   readonly filterFields: ListFilterField[] = [
     {
@@ -58,8 +72,10 @@ export class CustomersPage implements OnInit {
       key: 'isActive',
       label: 'Estado',
       type: 'select',
-      emptyLabel: 'Activos',
-      options: [{ value: 'false', label: 'Inactivos' }],
+      options: [
+        { value: 'true', label: 'Activos' },
+        { value: 'false', label: 'Inactivos' },
+      ],
     },
     {
       key: 'hasEmail',
@@ -113,12 +129,13 @@ export class CustomersPage implements OnInit {
     this.formOpen.set(true);
   }
 
-  closeForm(): void {
+  async closeForm(force = false): Promise<void> {
+    if (!force && !(await this.unsavedChanges.canDiscard(this.form))) return;
     this.formOpen.set(false);
     this.selected.set(null);
   }
 
-  submit(): void {
+  async submit(): Promise<void> {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -133,14 +150,41 @@ export class CustomersPage implements OnInit {
       ...(raw.phone.trim() && { phone: raw.phone.trim() }),
       ...(raw.address.trim() && { address: raw.address.trim() }),
     };
-    this.facade.save(input, this.selected() ?? undefined);
-    this.closeForm();
+    const customer = this.selected();
+    if (customer) {
+      const confirmed = await this.confirmation.confirm({
+        title: 'Guardar cambios',
+        message: `¿Deseas actualizar los datos de ${customer.firstName} ${customer.lastName}?`,
+        confirmLabel: 'Sí, actualizar',
+      });
+      if (!confirmed) return;
+    }
+    this.facade.save(input, customer ?? undefined);
+    await this.closeForm(true);
   }
 
-  deactivate(customer: Customer): void {
+  async deactivate(customer: Customer): Promise<void> {
     const name = `${customer.firstName} ${customer.lastName}`;
-    if (window.confirm(`¿Desactivar a ${name}? Esta acción ocultará al suscriptor del listado.`)) {
+    const confirmed = await this.confirmation.confirm({
+      title: 'Desactivar suscriptor',
+      message: `¿Deseas desactivar a ${name}? El suscriptor se ocultará del listado activo.`,
+      confirmLabel: 'Sí, desactivar',
+      danger: true,
+    });
+    if (confirmed) {
       this.facade.deactivate(customer);
+    }
+  }
+
+  async activate(customer: Customer): Promise<void> {
+    const name = `${customer.firstName} ${customer.lastName}`;
+    const confirmed = await this.confirmation.confirm({
+      title: 'Reactivar suscriptor',
+      message: `¿Deseas reactivar a ${name}? Volverá a estar disponible para las operaciones del sistema.`,
+      confirmLabel: 'Sí, reactivar',
+    });
+    if (confirmed) {
+      this.facade.activate(customer);
     }
   }
 

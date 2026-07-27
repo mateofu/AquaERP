@@ -3,7 +3,7 @@
   <span>Refina los resultados del listado.</span>
 </header>
 
-<form class="filters" role="search" (ngSubmit)="search()">
+<form class="filters" role="search" (submit)="submit($event)">
   <div class="controls">
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>{{ placeholder() }}</mat-label>
@@ -32,7 +32,7 @@
         } @else {
           <input
             matInput
-            [value]="values()[field.key]"
+            [value]="valueFor(field.key)"
             (input)="updateValue(field.key, $any($event.target).value)"
           />
         }
@@ -44,7 +44,7 @@
 
   <footer>
     <div class="actions">
-      <button mat-flat-button type="submit">Buscar</button>
+      <button mat-flat-button type="button" (click)="search()">Buscar</button>
       <button
         mat-stroked-button
         type="button"

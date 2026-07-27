@@ -15,14 +15,17 @@ import { RoleName } from '@prisma/client';
 import { Request } from 'express';
 import {
   buildPaginationMeta,
-  PaginationQueryDto,
 } from '../../common/dto/pagination-query.dto';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { AuthUser } from '../../common/types/auth-user.type';
 import { CustomersService } from './customers.service';
-import { CreateCustomerDto, UpdateCustomerDto } from './dto/customer.dto';
+import {
+  CreateCustomerDto,
+  CustomerQueryDto,
+  UpdateCustomerDto,
+} from './dto/customer.dto';
 
 const READ_ROLES = [
   RoleName.ADMIN,
@@ -44,13 +47,18 @@ export class CustomersController {
   @Get()
   @Roles(...READ_ROLES)
   @ApiOperation({ summary: 'Lista suscriptores' })
-  async findAll(@Query() query: PaginationQueryDto) {
+  async findAll(@Query() query: CustomerQueryDto) {
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;
     const { data, total } = await this.customersService.findAll(
       page,
       limit,
       query.search,
+      {
+        documentType: query.documentType,
+        isActive: query.isActive,
+        hasEmail: query.hasEmail,
+      },
     );
 
     return {
@@ -98,5 +106,16 @@ export class CustomersController {
     @Req() request: Request,
   ) {
     return this.customersService.deactivate(id, user.id, request.ip);
+  }
+
+  @Post(':id/activate')
+  @Roles(...WRITE_ROLES)
+  @ApiOperation({ summary: 'Reactiva un suscriptor' })
+  activate(
+    @Param('id') id: number,
+    @CurrentUser() user: AuthUser,
+    @Req() request: Request,
+  ) {
+    return this.customersService.activate(id, user.id, request.ip);
   }
 }

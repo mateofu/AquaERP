@@ -52,6 +52,11 @@ export class ListFiltersComponent {
       Object.values(this.values()).some(Boolean),
   );
 
+  submit(event: Event): void {
+    event.preventDefault();
+    this.search();
+  }
+
   search(): void {
     this.filterChange.emit({
       search: this.searchControl.value.trim(),
@@ -69,6 +74,10 @@ export class ListFiltersComponent {
 
   updateValue(key: string, value: string | number): void {
     this.values.update((current) => ({ ...current, [key]: String(value) }));
+  }
+
+  valueFor(key: string): string {
+    return this.values()[key] || '';
   }
 
   yearControl(key: string): FormControl<string> {

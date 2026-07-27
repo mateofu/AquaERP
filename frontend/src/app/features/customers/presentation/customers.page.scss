@@ -28,7 +28,7 @@ h1 { margin-bottom: .35rem; color: #1e3832; font-family: Georgia, 'Times New Rom
   to { opacity: 1; transform: translate(-50%, 0); }
 }
 .panel { overflow: hidden; border: 1px solid #dde5e2; border-radius: 14px; background: #fff; }
-.list-heading { padding: 1.15rem 1rem; border-bottom: 1px solid #e4e9e7; }
+.list-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.15rem 1rem; border-bottom: 1px solid #e4e9e7; }
 .list-heading h2 { margin: 0 0 .25rem; color: #29433c; font-family: inherit; font-size: .95rem; font-weight: 750; }
 .list-heading p { margin: 0; color: #7b8985; font-size: .72rem; }
 .toolbar { display: flex; gap: .75rem; align-items: center; padding: 1rem; border-bottom: 1px solid #e4e9e7; }
@@ -62,6 +62,7 @@ td:not(.actions) { overflow-wrap: anywhere; }
 td strong, td small { display: block; }
 td strong { color: #203b34; font-size: .84rem; }
 td small { margin-top: .25rem; color: #82908c; font-size: .68rem; }
+td small.inactive { color: #a53f35; font-weight: 700; }
 .actions-heading, .actions { text-align: center; white-space: nowrap; }
 .action-button { color: #286f60; }
 .action-button + .action-button { margin-left: .2rem; }

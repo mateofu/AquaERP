@@ -8,6 +8,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActionIconComponent } from '../../../shared/components/action-icon/action-icon.component';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
 import { NotificationComponent } from '../../../shared/components/notification/notification.component';
+import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { ConfirmationDialogService } from '../../../shared/components/confirmation-dialog/confirmation-dialog.service';
+import { UnsavedChangesService } from '../../../shared/services/unsaved-changes.service';
+import { NumericInputDirective } from '../../../shared/directives/numeric-input.directive';
 import { DateFieldComponent } from '../../../shared/components/date-field/date-field.component';
 import {
   ListFilterField,
@@ -28,6 +32,7 @@ import {
     ActionIconComponent,
     ModalComponent,
     NotificationComponent,
+    EmptyStateComponent,
     CurrencyPipe,
     DateFieldComponent,
     DatePipe,
@@ -37,6 +42,7 @@ import {
     MatInputModule,
     MatTooltipModule,
     ReactiveFormsModule,
+    NumericInputDirective,
   ],
   providers: [TariffsFacade],
   templateUrl: './tariffs.page.html',
@@ -45,6 +51,8 @@ import {
 export class TariffsPage implements OnInit {
   readonly facade = inject(TariffsFacade);
   private readonly session = inject(AuthSessionService);
+  private readonly confirmation = inject(ConfirmationDialogService);
+  private readonly unsavedChanges = inject(UnsavedChangesService);
   readonly selected = signal<Tariff | null>(null);
   readonly formOpen = signal(false);
   readonly canWrite = computed(() => this.session.user()?.roles?.includes('ADMIN') ?? false);
@@ -97,12 +105,13 @@ export class TariffsPage implements OnInit {
     this.formOpen.set(true);
   }
 
-  closeForm(): void {
+  async closeForm(force = false): Promise<void> {
+    if (!force && !(await this.unsavedChanges.canDiscard(this.form))) return;
     this.formOpen.set(false);
     this.selected.set(null);
   }
 
-  submit(): void {
+  async submit(): Promise<void> {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -116,18 +125,38 @@ export class TariffsPage implements OnInit {
       validFrom: raw.validFrom,
       ...(raw.validTo && { validTo: raw.validTo }),
     };
-    this.facade.save(input, this.selected() ?? undefined);
-    this.closeForm();
+    const tariff = this.selected();
+    if (tariff) {
+      const confirmed = await this.confirmation.confirm({
+        title: 'Guardar cambios',
+        message: `¿Deseas actualizar la tarifa “${tariff.name}”?`,
+        confirmLabel: 'Sí, actualizar',
+      });
+      if (!confirmed) return;
+    }
+    this.facade.save(input, tariff ?? undefined);
+    await this.closeForm(true);
   }
 
-  activate(tariff: Tariff): void {
-    if (window.confirm(`¿Activar "${tariff.name}"? Su vigencia quedará disponible para facturar.`)) {
+  async activate(tariff: Tariff): Promise<void> {
+    const confirmed = await this.confirmation.confirm({
+      title: 'Activar tarifa',
+      message: `¿Deseas activar “${tariff.name}”? Su vigencia quedará disponible para facturar.`,
+      confirmLabel: 'Sí, activar',
+    });
+    if (confirmed) {
       this.facade.activate(tariff);
     }
   }
 
-  retire(tariff: Tariff): void {
-    if (window.confirm(`¿Retirar "${tariff.name}"? Se conservará su historial.`)) {
+  async retire(tariff: Tariff): Promise<void> {
+    const confirmed = await this.confirmation.confirm({
+      title: 'Retirar tarifa',
+      message: `¿Deseas retirar “${tariff.name}”? Se conservará su historial.`,
+      confirmLabel: 'Sí, retirar',
+      danger: true,
+    });
+    if (confirmed) {
       this.facade.retire(tariff);
     }
   }

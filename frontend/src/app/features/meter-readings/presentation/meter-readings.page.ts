@@ -9,18 +9,23 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActionIconComponent } from '../../../shared/components/action-icon/action-icon.component';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
 import { NotificationComponent } from '../../../shared/components/notification/notification.component';
+import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { ConfirmationDialogService } from '../../../shared/components/confirmation-dialog/confirmation-dialog.service';
+import { UnsavedChangesService } from '../../../shared/services/unsaved-changes.service';
+import { NumericInputDirective } from '../../../shared/directives/numeric-input.directive';
 import { DateFieldComponent } from '../../../shared/components/date-field/date-field.component';
 import { ListFilterField, ListFiltersComponent } from '../../../shared/components/list-filters/list-filters.component';
 import { AuthSessionService } from '../../auth/application/auth-session.service';
+import { ExcelExportService } from '../../../shared/services/excel-export.service';
 import { MeterReadingsFacade } from '../application/meter-readings.facade';
 import { MeterReading } from '../domain/meter-reading.models';
 
 @Component({
   selector: 'app-meter-readings-page',
   imports: [
-    ActionIconComponent, ModalComponent, NotificationComponent, DateFieldComponent, DatePipe, DecimalPipe, ListFiltersComponent,
+    ActionIconComponent, ModalComponent, NotificationComponent, EmptyStateComponent, DateFieldComponent, DatePipe, DecimalPipe, ListFiltersComponent,
     MatButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule,
-    MatTooltipModule, ReactiveFormsModule,
+    MatTooltipModule, ReactiveFormsModule, NumericInputDirective,
   ],
   providers: [MeterReadingsFacade],
   templateUrl: './meter-readings.page.html',
@@ -28,13 +33,19 @@ import { MeterReading } from '../domain/meter-reading.models';
 })
 export class MeterReadingsPage implements OnInit {
   readonly facade = inject(MeterReadingsFacade);
+  private readonly excel = inject(ExcelExportService);
   private readonly session = inject(AuthSessionService);
+  private readonly confirmation = inject(ConfirmationDialogService);
+  private readonly unsavedChanges = inject(UnsavedChangesService);
   readonly selected = signal<MeterReading | null>(null);
   readonly formOpen = signal(false);
   readonly canWrite = computed(() => {
     const roles = this.session.user()?.roles ?? [];
     return roles.some((role) => ['ADMIN', 'OPERADOR', 'LECTOR'].includes(role));
   });
+  exportExcel(): void {
+    this.excel.download('meter-readings', 'lecturas', this.facade.filters()).subscribe();
+  }
   readonly filterFields = computed<ListFilterField[]>(() => [
     { key: 'billingPeriodId', label: 'Periodo', type: 'select', options: this.facade.periods() },
     { key: 'meterId', label: 'Medidor', type: 'select', options: this.facade.meters() },
@@ -75,22 +86,32 @@ export class MeterReadingsPage implements OnInit {
     this.formOpen.set(true);
   }
 
-  closeForm(): void {
+  async closeForm(force = false): Promise<void> {
+    if (!force && !(await this.unsavedChanges.canDiscard(this.form))) return;
     this.formOpen.set(false);
     this.selected.set(null);
   }
 
-  submit(): void {
+  async submit(): Promise<void> {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
     const value = this.form.getRawValue();
     if (value.readingValue === null) return;
+    const reading = this.selected();
+    if (reading) {
+      const confirmed = await this.confirmation.confirm({
+        title: 'Guardar cambios',
+        message: '¿Deseas actualizar esta lectura? El consumo puede cambiar.',
+        confirmLabel: 'Sí, actualizar',
+      });
+      if (!confirmed) return;
+    }
     this.facade.save({
       billingPeriodId: value.billingPeriodId!,
       meterId: value.meterId!,
       readingValue: value.readingValue,
       readingDate: value.readingDate,
       ...(value.notes.trim() && { notes: value.notes.trim() }),
-    }, this.selected() ?? undefined);
-    this.closeForm();
+    }, reading ?? undefined);
+    await this.closeForm(true);
   }
 }

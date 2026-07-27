@@ -8,9 +8,13 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActionIconComponent } from '../../../shared/components/action-icon/action-icon.component';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
 import { NotificationComponent } from '../../../shared/components/notification/notification.component';
+import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { ConfirmationDialogService } from '../../../shared/components/confirmation-dialog/confirmation-dialog.service';
+import { UnsavedChangesService } from '../../../shared/services/unsaved-changes.service';
 import { ListFiltersComponent } from '../../../shared/components/list-filters/list-filters.component';
 import { ListFilterField } from '../../../shared/components/list-filters/list-filters.component';
 import { AuthSessionService } from '../../auth/application/auth-session.service';
+import { ExcelExportService } from '../../../shared/services/excel-export.service';
 import { PropertiesFacade } from '../application/properties.facade';
 import { Property, PropertyInput } from '../domain/property.models';
 
@@ -20,6 +24,7 @@ import { Property, PropertyInput } from '../domain/property.models';
     ActionIconComponent,
     ModalComponent,
     NotificationComponent,
+    EmptyStateComponent,
     ListFiltersComponent,
     MatButtonModule,
     MatFormFieldModule,
@@ -34,13 +39,22 @@ import { Property, PropertyInput } from '../domain/property.models';
 })
 export class PropertiesPage implements OnInit {
   readonly facade = inject(PropertiesFacade);
+  private readonly excel = inject(ExcelExportService);
   private readonly session = inject(AuthSessionService);
+  private readonly confirmation = inject(ConfirmationDialogService);
+  private readonly unsavedChanges = inject(UnsavedChangesService);
   readonly selected = signal<Property | null>(null);
   readonly formOpen = signal(false);
   readonly canWrite = computed(() => {
     const roles = this.session.user()?.roles ?? [];
     return roles.includes('ADMIN') || roles.includes('OPERADOR');
   });
+  exportExcel(): void {
+    this.excel.download('properties', 'predios', {
+      search: this.facade.search(),
+      ...this.facade.filters(),
+    }).subscribe();
+  }
   readonly filterFields = computed<ListFilterField[]>(() => [
     {
       key: 'customerId',
@@ -92,12 +106,13 @@ export class PropertiesPage implements OnInit {
     this.formOpen.set(true);
   }
 
-  closeForm(): void {
+  async closeForm(force = false): Promise<void> {
+    if (!force && !(await this.unsavedChanges.canDiscard(this.form))) return;
     this.formOpen.set(false);
     this.selected.set(null);
   }
 
-  submit(): void {
+  async submit(): Promise<void> {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -110,12 +125,27 @@ export class PropertiesPage implements OnInit {
       municipality: raw.municipality.trim(),
       vereda: raw.vereda.trim(),
     };
-    this.facade.save(input, this.selected() ?? undefined);
-    this.closeForm();
+    const property = this.selected();
+    if (property) {
+      const confirmed = await this.confirmation.confirm({
+        title: 'Guardar cambios',
+        message: `¿Deseas actualizar los datos del predio ${property.code}?`,
+        confirmLabel: 'Sí, actualizar',
+      });
+      if (!confirmed) return;
+    }
+    this.facade.save(input, property ?? undefined);
+    await this.closeForm(true);
   }
 
-  deactivate(property: Property): void {
-    if (window.confirm(`¿Desactivar el predio ${property.code}? Se ocultará del listado.`)) {
+  async deactivate(property: Property): Promise<void> {
+    const confirmed = await this.confirmation.confirm({
+      title: 'Desactivar predio',
+      message: `¿Deseas desactivar el predio ${property.code}? Se ocultará del listado activo.`,
+      confirmLabel: 'Sí, desactivar',
+      danger: true,
+    });
+    if (confirmed) {
       this.facade.deactivate(property);
     }
   }

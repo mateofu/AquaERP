@@ -19,6 +19,7 @@ import { InvoicesModule } from './modules/invoices/invoices.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { UsersModule } from './modules/users/users.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { ReportsModule } from './modules/reports/reports.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { PrismaModule } from './prisma/prisma.module';
     TariffsModule,
     InvoicesModule,
     PaymentsModule,
+    ReportsModule,
     HealthModule,
   ],
   providers: [

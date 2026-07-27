@@ -1,2 +1,2 @@
-import { Module } from '@nestjs/common'; import { AuditModule } from '../audit/audit.module'; import { InvoicesController } from './invoices.controller'; import { InvoicesService } from './invoices.service';
-@Module({imports:[AuditModule],controllers:[InvoicesController],providers:[InvoicesService],exports:[InvoicesService]}) export class InvoicesModule{}
+import { Module } from '@nestjs/common'; import { AuditModule } from '../audit/audit.module'; import { InvoicePdfService } from './invoice-pdf.service'; import { InvoicesController } from './invoices.controller'; import { InvoicesService } from './invoices.service';
+@Module({imports:[AuditModule],controllers:[InvoicesController],providers:[InvoicesService,InvoicePdfService],exports:[InvoicesService]}) export class InvoicesModule{}

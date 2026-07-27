@@ -5,6 +5,7 @@ import { BatchResult,EligibleReading,GenerateBatchInput,GenerateInvoiceInput,Inv
   loadCatalogs(){forkJoin({all:this.catalogs.get('billing-periods'),closed:this.catalogs.get('billing-periods',{status:'CLOSED'})}).subscribe({next:r=>{this.periods.set(r.all);this.closedPeriods.set(r.closed)},error:e=>this.fail(e)})}
   loadEligible(id:number|null){this.eligible.set([]);if(!id)return;this.api.eligible(id).subscribe({next:r=>this.eligible.set(r.data),error:e=>this.fail(e)})}
   detail(id:number){this.api.one(id).subscribe({next:v=>this.selected.set(v),error:e=>this.fail(e)})}
+  downloadPdf(invoice:Invoice){this.api.pdf(invoice.id).subscribe({next:file=>{const url=URL.createObjectURL(file);const link=document.createElement('a');link.href=url;link.download=`FAC-${String(invoice.sequence).padStart(6,'0')}.pdf`;link.click();URL.revokeObjectURL(url)},error:e=>this.fail(e)})}
   applyFilters(search:string,filters:Record<string,string>){this.filters.set({...filters,...(search&&{search})});this.page.set(1);this.load()}
   previous(){if(this.hasPrevious()){this.page.update(v=>v-1);this.load()}} next(){if(this.hasNext()){this.page.update(v=>v+1);this.load()}}
   generate(input:GenerateInvoiceInput){this.mutate(this.api.generate(input),'Factura generada correctamente.')}
