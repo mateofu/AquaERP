@@ -78,12 +78,6 @@ ALTER TABLE "meter_readings" DROP CONSTRAINT "meter_readings_meter_id_fkey";
 ALTER TABLE "meters" DROP CONSTRAINT "meters_property_id_fkey";
 
 -- DropForeignKey
-ALTER TABLE "payments" DROP CONSTRAINT "payments_invoice_id_fkey";
-
--- DropForeignKey
-ALTER TABLE "payments" DROP CONSTRAINT "payments_recorded_by_id_fkey";
-
--- DropForeignKey
 ALTER TABLE "properties" DROP CONSTRAINT "properties_customer_id_fkey";
 
 -- DropForeignKey
@@ -158,16 +152,6 @@ ADD COLUMN     "id" SERIAL NOT NULL,
 DROP COLUMN "property_id",
 ADD COLUMN     "property_id" INTEGER NOT NULL,
 ADD CONSTRAINT "meters_pkey" PRIMARY KEY ("id");
-
--- AlterTable
-ALTER TABLE "payments" DROP CONSTRAINT "payments_pkey",
-DROP COLUMN "id",
-ADD COLUMN     "id" SERIAL NOT NULL,
-DROP COLUMN "invoice_id",
-ADD COLUMN     "invoice_id" INTEGER NOT NULL,
-DROP COLUMN "recorded_by_id",
-ADD COLUMN     "recorded_by_id" INTEGER NOT NULL,
-ADD CONSTRAINT "payments_pkey" PRIMARY KEY ("id");
 
 -- AlterTable
 ALTER TABLE "properties" DROP CONSTRAINT "properties_pkey",
@@ -245,9 +229,6 @@ CREATE UNIQUE INDEX "meter_readings_meter_id_billing_period_id_key" ON "meter_re
 CREATE INDEX "meters_property_id_idx" ON "meters"("property_id");
 
 -- CreateIndex
-CREATE INDEX "payments_invoice_id_payment_date_idx" ON "payments"("invoice_id", "payment_date");
-
--- CreateIndex
 CREATE INDEX "properties_customer_id_idx" ON "properties"("customer_id");
 
 -- CreateIndex
@@ -288,12 +269,6 @@ ALTER TABLE "invoices" ADD CONSTRAINT "invoices_customer_id_fkey" FOREIGN KEY ("
 
 -- AddForeignKey
 ALTER TABLE "invoices" ADD CONSTRAINT "invoices_tariff_id_fkey" FOREIGN KEY ("tariff_id") REFERENCES "tariffs"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "payments" ADD CONSTRAINT "payments_invoice_id_fkey" FOREIGN KEY ("invoice_id") REFERENCES "invoices"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "payments" ADD CONSTRAINT "payments_recorded_by_id_fkey" FOREIGN KEY ("recorded_by_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "invoice_items" ADD CONSTRAINT "invoice_items_invoice_id_fkey" FOREIGN KEY ("invoice_id") REFERENCES "invoices"("id") ON DELETE CASCADE ON UPDATE CASCADE;
