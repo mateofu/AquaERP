@@ -4,6 +4,7 @@ export type ActionIcon =
   | 'edit'
   | 'deactivate'
   | 'activate'
+  | 'download'
   | 'previous'
   | 'next'
   | 'open'
@@ -24,6 +25,9 @@ export type ActionIcon =
       } @else if (name() === 'activate') {
         <circle cx="12" cy="12" r="9" />
         <path d="m8 12 2.7 2.7L16.5 9" />
+      } @else if (name() === 'download') {
+        <path d="M12 3v12" />
+        <path d="m7.5 11 4.5 4.5 4.5-4.5M5 20h14" />
       } @else if (name() === 'previous') {
         <path d="m14.5 5-7 7 7 7" />
       } @else if (name() === 'next') {

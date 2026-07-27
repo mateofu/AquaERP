@@ -24,6 +24,9 @@
       <h2>Listado de suscriptores</h2>
       <p>Personas responsables registradas en el sistema.</p>
     </div>
+    <button mat-stroked-button class="excel-export-button" type="button" (click)="exportExcel()">
+      Exportar Excel
+    </button>
   </header>
 
   @if (facade.loading()) {

@@ -16,6 +16,7 @@ import { DateFieldComponent } from '../../../shared/components/date-field/date-f
 import { ListFiltersComponent } from '../../../shared/components/list-filters/list-filters.component';
 import { ListFilterField } from '../../../shared/components/list-filters/list-filters.component';
 import { AuthSessionService } from '../../auth/application/auth-session.service';
+import { ExcelExportService } from '../../../shared/services/excel-export.service';
 import { MetersFacade } from '../application/meters.facade';
 import { Meter, MeterInput } from '../domain/meter.models';
 
@@ -42,6 +43,7 @@ import { Meter, MeterInput } from '../domain/meter.models';
 })
 export class MetersPage implements OnInit {
   readonly facade = inject(MetersFacade);
+  private readonly excel = inject(ExcelExportService);
   private readonly session = inject(AuthSessionService);
   private readonly confirmation = inject(ConfirmationDialogService);
   private readonly unsavedChanges = inject(UnsavedChangesService);
@@ -51,6 +53,12 @@ export class MetersPage implements OnInit {
     const roles = this.session.user()?.roles ?? [];
     return roles.includes('ADMIN') || roles.includes('OPERADOR');
   });
+  exportExcel(): void {
+    this.excel.download('meters', 'medidores', {
+      search: this.facade.search(),
+      ...this.facade.filters(),
+    }).subscribe();
+  }
   readonly filterFields = computed<ListFilterField[]>(() => [
     {
       key: 'propertyId',

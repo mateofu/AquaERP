@@ -15,7 +15,15 @@
 @if (facade.error(); as message) { <app-notification kind="error" [message]="message" /> }
 
 <section class="panel">
-  <header class="list-heading"><h2>Listado de lecturas</h2><p>Consumos calculados por medidor y periodo.</p></header>
+  <header class="list-heading">
+    <div>
+      <h2>Listado de lecturas</h2>
+      <p>Consumos calculados por medidor y periodo.</p>
+    </div>
+    <button mat-stroked-button class="excel-export-button" type="button" (click)="exportExcel()">
+      Exportar Excel
+    </button>
+  </header>
   @if (facade.loading()) {
     <div class="empty-state">Cargando lecturas…</div>
   } @else if (!facade.readings().length) {

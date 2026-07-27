@@ -16,6 +16,7 @@ import { NumericInputDirective } from '../../../shared/directives/numeric-input.
 import { DateFieldComponent } from '../../../shared/components/date-field/date-field.component';
 import { ListFilterField, ListFiltersComponent } from '../../../shared/components/list-filters/list-filters.component';
 import { AuthSessionService } from '../../auth/application/auth-session.service';
+import { ExcelExportService } from '../../../shared/services/excel-export.service';
 import { MeterReadingsFacade } from '../application/meter-readings.facade';
 import { MeterReading } from '../domain/meter-reading.models';
 
@@ -32,6 +33,7 @@ import { MeterReading } from '../domain/meter-reading.models';
 })
 export class MeterReadingsPage implements OnInit {
   readonly facade = inject(MeterReadingsFacade);
+  private readonly excel = inject(ExcelExportService);
   private readonly session = inject(AuthSessionService);
   private readonly confirmation = inject(ConfirmationDialogService);
   private readonly unsavedChanges = inject(UnsavedChangesService);
@@ -41,6 +43,9 @@ export class MeterReadingsPage implements OnInit {
     const roles = this.session.user()?.roles ?? [];
     return roles.some((role) => ['ADMIN', 'OPERADOR', 'LECTOR'].includes(role));
   });
+  exportExcel(): void {
+    this.excel.download('meter-readings', 'lecturas', this.facade.filters()).subscribe();
+  }
   readonly filterFields = computed<ListFilterField[]>(() => [
     { key: 'billingPeriodId', label: 'Periodo', type: 'select', options: this.facade.periods() },
     { key: 'meterId', label: 'Medidor', type: 'select', options: this.facade.meters() },

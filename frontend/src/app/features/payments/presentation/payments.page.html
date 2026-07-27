@@ -19,7 +19,11 @@
 </section>
 
 <section class="panel history">
-  <header><div><h2>Historial de recaudos</h2><p>Últimos pagos registrados.</p></div><mat-form-field appearance="outline"><mat-label>Buscar pago</mat-label><input #search matInput placeholder="Cliente, documento o referencia" (keyup.enter)="facade.applySearch(search.value)" /></mat-form-field></header>
+  <header>
+    <div><h2>Historial de recaudos</h2><p>Últimos pagos registrados.</p></div>
+    <mat-form-field appearance="outline"><mat-label>Buscar pago</mat-label><input #search matInput placeholder="Cliente, documento o referencia" (keyup.enter)="facade.applySearch(search.value)" /></mat-form-field>
+    <button mat-stroked-button class="excel-export-button" type="button" (click)="exportExcel()">Exportar Excel</button>
+  </header>
   @if (!facade.payments().length) { <div class="empty">No hay pagos registrados.</div> }
   @else { <div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Factura</th><th>Suscriptor</th><th>Medio</th><th>Referencia</th><th>Valor</th><th>Registrado por</th></tr></thead><tbody>
     @for (payment of facade.payments(); track payment.id) { <tr><td>{{ payment.paymentDate | date:'dd/MM/yyyy':'UTC' }}</td><td>FAC-{{ payment.invoice.sequence.toString().padStart(6,'0') }}</td><td>{{ payment.invoice.customerName }}</td><td>{{ methodsMap[payment.method] }}</td><td>{{ payment.reference || '—' }}</td><td><strong>{{ +payment.amount | currency:'COP':'symbol-narrow':'1.0-2' }}</strong></td><td>{{ payment.recordedBy.firstName }} {{ payment.recordedBy.lastName }}</td></tr> }

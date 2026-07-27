@@ -24,6 +24,9 @@
       <h2>Listado de predios</h2>
       <p>Ubicaciones activas asociadas a los suscriptores.</p>
     </div>
+    <button mat-stroked-button class="excel-export-button" type="button" (click)="exportExcel()">
+      Exportar Excel
+    </button>
   </header>
 
   @if (facade.loading()) {

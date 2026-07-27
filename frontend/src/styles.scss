@@ -129,3 +129,53 @@ input {
     width: min(350px, calc(100vw - 28px));
   }
 }
+
+.export-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+:root {
+  --excel-export-color: #217346;
+  --excel-export-hover: #185c37;
+  --excel-export-text: #ffffff;
+}
+
+.excel-export-button {
+  border-color: var(--excel-export-color) !important;
+  color: var(--excel-export-text) !important;
+  background: var(--excel-export-color) !important;
+}
+
+.excel-export-button:hover {
+  background: var(--excel-export-hover) !important;
+}
+
+.excel-export-button .mdc-button__label {
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+}
+
+.excel-export-button .mdc-button__label::before {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex: 0 0 1.25rem;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='10' y='2' width='20' height='28' rx='3' fill='%23107c41'/%3E%3Cpath fill='%2333c481' d='M18 6h8v5h-8z'/%3E%3Cpath fill='%2321a366' d='M18 13h8v5h-8zm0 7h8v5h-8z'/%3E%3Cpath stroke='%23fff' stroke-opacity='.72' d='M14 11h12M14 18h12M14 25h12M18 6v19'/%3E%3Crect x='2' y='6' width='17' height='20' rx='2.5' fill='%23185c37'/%3E%3Cpath fill='%23fff' d='m6.2 11 3.1 4.8 3.2-4.8h3.1l-4.5 6.5 4.7 7h-3.2l-3.4-5.1-3.3 5.1H2.8l4.6-6.8L3.1 11h3.1Z'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  content: '';
+}
+
+@media (max-width: 520px) {
+  .export-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .export-heading button {
+    align-self: flex-start;
+  }
+}
