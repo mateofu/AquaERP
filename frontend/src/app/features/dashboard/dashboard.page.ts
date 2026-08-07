@@ -84,8 +84,8 @@ export class DashboardPage implements OnInit {
 
     forkJoin({
       customers: this.safe(this.customersApi.list(1, 1, '', { isActive: 'true' })),
-      properties: this.safe(this.propertiesApi.list(1, 1, '', { isActive: 'true' })),
-      meters: this.safe(this.metersApi.list(1, 1, '', { isActive: 'true' })),
+      properties: this.safe(this.propertiesApi.list(1, 1, '')),
+      meters: this.safe(this.metersApi.list(1, 1, '')),
       periods: this.safe(this.periodsApi.list(1, 1, { status: 'OPEN' })),
       portfolio: this.safe(this.paymentsApi.portfolio()),
     })
